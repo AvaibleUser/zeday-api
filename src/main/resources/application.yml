@@ -20,6 +20,10 @@ spring:
     password: ${DB_PASS}
     url: jdbc:mysql://${DB_HOST}/${DB_DATABASE}
 
+  jackson:
+    mapper:
+      '[ACCEPT_CASE_INSENSITIVE_ENUMS]': true
+
   jpa:
     show-sql: true
     hibernate:
@@ -30,6 +34,18 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${OAUTH2_GOOGLE_ID}
+            client-secret: ${OAUTH2_GOOGLE_SECRET}
+
+          facebook:
+            client-id: ${OAUTH2_FACEBOOK_ID}
+            client-secret: ${OAUTH2_FACEBOOK_SECRET}
 
   mail:
     host: smtp.gmail.com
