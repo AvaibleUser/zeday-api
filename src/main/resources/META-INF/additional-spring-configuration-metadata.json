@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "aws.s3.region",
+    "type": "java.lang.String",
+    "description": "The region where the S3 bucket would be"
+  },
+  {
+    "name": "aws.s3.bucketName",
+    "type": "java.lang.String",
+    "description": "The bucket name where will be saved the files in S3"
+  }
+]}

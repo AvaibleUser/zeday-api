@@ -58,3 +58,8 @@ spring:
           auth: true
           starttls:
             enable: true
+
+aws:
+  s3:
+    region: us-east-1
+    bucketName: ecommerce-ayds
