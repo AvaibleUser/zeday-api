@@ -60,6 +60,12 @@ tasks.withType<Test> {
 }
 tasks.jacocoTestReport {
 	dependsOn(tasks.test)
+
+	reports {
+		xml.required = true
+		csv.required = false
+		xml.outputLocation = layout.buildDirectory.file("reports/jacoco/test/jacoco.xml")
+	}
 }
 tasks.jacocoTestCoverageVerification {
 	dependsOn(tasks.jacocoTestReport)
