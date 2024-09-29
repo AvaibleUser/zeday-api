@@ -1,6 +1,7 @@
 package com.ayds.zeday.domain.entity;
 
 import static jakarta.persistence.FetchType.EAGER;
+import static lombok.AccessLevel.PRIVATE;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -23,12 +24,15 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.Singular;
 
 @Entity
 @Table(name = "user", uniqueConstraints = {
@@ -37,8 +41,10 @@ import lombok.Setter;
         @UniqueConstraint(columnNames = { "cui", "business_id" }) })
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @RequiredArgsConstructor
+@AllArgsConstructor(access = PRIVATE)
 @EqualsAndHashCode(of = "id")
 public class UserEntity implements UserDetails {
 
@@ -53,6 +59,10 @@ public class UserEntity implements UserDetails {
     @NonNull
     @Column(nullable = false)
     private String password;
+
+    @NonNull
+    @Column(name = "mfa_secret", nullable = false)
+    private String mfaSecret;
 
     @NonNull
     @Column(nullable = false)
@@ -74,13 +84,18 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private String phone;
 
+    @Builder.Default
+    @Column(name = "active_mfa", nullable = false)
+    private Boolean activeMfa = false;
+
     private String timezone;
 
-    @ManyToOne(optional = false)
+    @ManyToOne// (optional = false)
     @JoinColumn(name = "business_id")
     private BusinessEntity business;
 
     @NonNull
+    @Singular
     @ManyToMany(fetch = EAGER)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<RoleEntity> roles;
@@ -104,8 +119,7 @@ public class UserEntity implements UserDetails {
                 .map(RoleEntity::getPermissions)
                 .flatMap(Set::stream)
                 .distinct()
-                .map(permission -> permission.getModule().toUpperCase() + "_" + permission.getGrantAccess().name())
-                .map("PERMISSION_"::concat)
+                .map(permission -> permission.getModule().toUpperCase() + "::" + permission.getGrantAccess().name())
                 .map(SimpleGrantedAuthority::new)
                 .toList();
     }

@@ -1,4 +1,4 @@
-package com.ayds.zeday.service;
+package com.ayds.zeday.service.util;
 
 import static software.amazon.awssdk.core.sync.RequestBody.fromInputStream;
 

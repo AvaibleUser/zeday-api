@@ -7,6 +7,15 @@ server:
   servlet:
     contextPath: /api
 
+logging:
+  level:
+    root: WARN
+    org:
+      springframework:
+        web: "debug"
+        data:
+          rest: "debug"
+
 spring:
   application:
     name: ZeroDay
@@ -35,18 +44,6 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
 
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${OAUTH2_GOOGLE_ID}
-            client-secret: ${OAUTH2_GOOGLE_SECRET}
-
-          facebook:
-            client-id: ${OAUTH2_FACEBOOK_ID}
-            client-secret: ${OAUTH2_FACEBOOK_SECRET}
-
   mail:
     host: smtp.gmail.com
     port: 587
@@ -59,7 +56,16 @@ spring:
           starttls:
             enable: true
 
+security:
+  rsa:
+    private-key: classpath:certs/private-key.pem
+    public-key: classpath:certs/public-key.pem
+
+  token:
+    expiration-time: 24
+    time-unit: HOURS
+
 aws:
   s3:
     region: us-east-1
-    bucketName: ecommerce-ayds
+    bucket-name: ecommerce-ayds
