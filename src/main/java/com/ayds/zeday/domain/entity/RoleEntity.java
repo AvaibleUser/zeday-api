@@ -45,8 +45,8 @@ public class RoleEntity {
     private String description;
 
     @NonNull
-    @Column(name = "multi_user", nullable = false)
-    private Boolean multiUser;
+    @Column(name = "multiuser", nullable = false)
+    private Boolean multiuser;
 
     @ManyToOne
     @JoinColumn(name = "business_id")

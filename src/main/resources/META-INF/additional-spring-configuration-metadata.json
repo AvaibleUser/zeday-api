@@ -1,11 +1,31 @@
 {"properties": [
   {
+    "name": "security.token.expiration-time",
+    "type": "java.lang.String",
+    "description": "The time that will be alive the token to be used"
+  },
+  {
+    "name": "security.token.time-unit",
+    "type": "java.time.temporal.ChronoUnit",
+    "description": "The unit of time that will be used in expiration time"
+  },
+  {
+    "name": "security.rsa.private-key",
+    "type": "java.security.interfaces.RSAPrivateKey",
+    "description": "The private key to use for sign JWT"
+  },
+  {
+    "name": "security.rsa.public-key",
+    "type": "java.security.interfaces.RSAPublicKey",
+    "description": "The public key to validate JWT"
+  },
+  {
     "name": "aws.s3.region",
     "type": "java.lang.String",
     "description": "The region where the S3 bucket would be"
   },
   {
-    "name": "aws.s3.bucketName",
+    "name": "aws.s3.bucket-name",
     "type": "java.lang.String",
     "description": "The bucket name where will be saved the files in S3"
   }

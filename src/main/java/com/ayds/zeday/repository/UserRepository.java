@@ -10,5 +10,9 @@ import com.ayds.zeday.domain.entity.UserEntity;
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
-    Optional<UserEntity> findByEmail(String email);
+    <U> Optional<U> findById(Long id, Class<U> type);
+
+    <U> Optional<U> findByEmail(String email, Class<U> type);
+
+    boolean existsByEmail(String email);
 }

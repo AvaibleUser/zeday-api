@@ -1,6 +1,5 @@
 package com.ayds.zeday.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,19 +10,14 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 
 @Configuration
-public class AmazonConfiguration {
+public class AmazonConfig {
 
     @Bean
-    S3Client s3Client(@Value("${aws.s3.region}") String region) {
+    S3Client s3Client(AmazonProperties amazonProperties) {
         return S3Client.builder()
-                .region(Region.of(region))
+                .region(Region.of(amazonProperties.region()))
                 .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
                 .forcePathStyle(true)
                 .build();
-    }
-
-    @Bean
-    AmazonProperties amazonProperties(@Value("${aws.s3.bucketName}") String bucketName) {
-        return new AmazonProperties(bucketName);
     }
 }
