@@ -1,5 +1,6 @@
 package com.ayds.zeday.controller;
 
+import static java.util.function.Predicate.not;
 import static org.springframework.http.HttpStatus.ACCEPTED;
 import static org.springframework.http.HttpStatus.CREATED;
 
@@ -39,7 +40,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -50,6 +51,11 @@ public class AuthController {
     private final EmailService emailService;
     private final TemplateRendererService templateRendererService;
     private final AuthenticationManager authenticationManager;
+
+    private TokenDto toTokenDto(UserDto user) {
+        String token = tokenService.generateToken(user.getId(), user.getPermissions());
+        return new TokenDto(token, user);
+    }
 
     @PostMapping("/sign-up")
     @ResponseStatus(CREATED)
@@ -80,9 +86,7 @@ public class AuthController {
         }
 
         TokenDto token = userService.findUserByEmail(user.email())
-                .map(UserDto::getId)
-                .map(tokenService::generateToken)
-                .map(TokenDto::new)
+                .map(this::toTokenDto)
                 .orElseThrow(() -> new InsufficientAuthenticationException("No se encontro el registro del usuario"));
 
         return ResponseEntity.ok(token);
@@ -94,10 +98,8 @@ public class AuthController {
         authenticationManager.authenticate(authenticableUser);
 
         return userService.findUserByEmail(user.email())
-                .filter(UserDto::getActiveMfa)
-                .map(UserDto::getId)
-                .map(tokenService::generateToken)
-                .map(TokenDto::new)
+                .filter(not(UserDto::getActiveMfa))
+                .map(this::toTokenDto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.accepted().build());
     }
@@ -107,16 +109,16 @@ public class AuthController {
         MfaUserDto user2fa = userService.findMfaUserByEmail(user.email())
                 .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar el registro del usuario"));
 
-        if (user2fa.activeMfa()) {
+        if (!user2fa.getActiveMfa()) {
             throw new BadRequestException("El usuario debe de tener activada la autenticacion por dos factores");
         }
-        if (!mfaAuthService.authencateUserWithMfaAuth(user2fa.mfaSecret(), Integer.parseInt(user.code()))) {
+        if (!mfaAuthService.authencateUserWithMfaAuth(user2fa.getMfaSecret(), Integer.parseInt(user.code()))) {
             throw new InsufficientAuthenticationException("La autenticacion en dos factores fallo");
         }
 
-        String token = tokenService.generateToken(user2fa.id());
+        String token = tokenService.generateToken(user2fa.getId(), user2fa.getPermissions());
 
-        return ResponseEntity.ok(new TokenDto(token));
+        return ResponseEntity.ok(new TokenDto(token, null));
     }
 
     @PostMapping("/recover-password")
@@ -148,9 +150,7 @@ public class AuthController {
         }
 
         return userService.findUserByEmail(user.email())
-                .map(UserDto::getId)
-                .map(tokenService::generateToken)
-                .map(TokenDto::new)
+                .map(this::toTokenDto)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar el registro del usuario"));
     }

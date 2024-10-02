@@ -4,12 +4,9 @@ server:
     include-message: always
     include-binding-errors: always
 
-  servlet:
-    contextPath: /api
-
 logging:
   level:
-    root: WARN
+    root: "warn"
     org:
       springframework:
         web: "debug"
@@ -22,6 +19,7 @@ spring:
 
   data:
     rest:
+      base-path: /api
       detection-strategy: annotated
 
   datasource:

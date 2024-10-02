@@ -1,6 +1,7 @@
 package com.ayds.zeday.service.util;
 
 import java.time.Instant;
+import java.util.Collection;
 
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -18,7 +19,7 @@ public class TokenService {
     private final JwtEncoder jwtEncoder;
     private final TokenProperties tokenProperties;
 
-    private String generateToken(long id, boolean temporal) {
+    public <T> String generateToken(long id, Collection<T> authorities) {
         Instant now = Instant.now();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
@@ -26,17 +27,9 @@ public class TokenService {
                 .issuedAt(now)
                 .expiresAt(now.plus(tokenProperties.expirationTime(), tokenProperties.timeUnit()))
                 .subject(String.valueOf(id))
-                .claim("temporal", temporal)
+                .claim("auths", authorities)
                 .build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
-    }
-
-    public String generateToken(long id) {
-        return generateToken(id, false);
-    }
-
-    public String generateTemporalToken(long id) {
-        return generateToken(id, true);
     }
 }
