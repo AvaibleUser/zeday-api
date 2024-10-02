@@ -43,18 +43,13 @@ import com.warrenstrange.googleauth.GoogleAuthenticator;
 @EnableMethodSecurity
 public class AuthConfig {
 
-    private static final String[] AUTH_WHITELIST = {
-            "/api/auth/**", "/swagger-ui.html", "/swagger-ui/**", "/v3/**" };
-
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, JwtDecoder jwtDecoder,
             UserService userDetailsService, AuthManagerService authManager) throws Exception {
         return httpSecurity
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(AUTH_WHITELIST).permitAll()
-                        .anyRequest().authenticated())
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwtCustomizer -> jwtCustomizer

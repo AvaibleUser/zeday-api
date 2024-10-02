@@ -17,17 +17,13 @@ spring:
   application:
     name: ZeroDay
 
-  data:
-    rest:
-      base-path: /api
-      detection-strategy: annotated
-
   datasource:
     username: ${DB_USER}
     password: ${DB_PASS}
     url: jdbc:mysql://${DB_HOST}/${DB_DATABASE}
 
   jackson:
+    time-zone: UTC
     mapper:
       '[ACCEPT_CASE_INSENSITIVE_ENUMS]': true
 

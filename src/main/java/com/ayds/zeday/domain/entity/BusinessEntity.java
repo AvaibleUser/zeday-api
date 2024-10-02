@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "business")
@@ -35,11 +36,14 @@ public class BusinessEntity {
     @Column(nullable = false, unique = true)
     private String name;
 
+    @Setter
     @NonNull
     @Column(name = "auto_assignment", nullable = false)
     private Boolean autoAssignment;
 
-    private String logo_url;
+    @Setter
+    @Column(name = "logo_url")
+    private String logoUrl;
 
     private String timezone;
 
