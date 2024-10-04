@@ -4,7 +4,7 @@ import java.time.Instant;
 
 import lombok.Builder;
 
-@Builder
+@Builder(toBuilder = true)
 public record BusinessDto(
         Long id,
         String name,

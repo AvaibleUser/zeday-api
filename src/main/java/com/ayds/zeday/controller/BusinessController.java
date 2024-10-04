@@ -8,7 +8,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ayds.zeday.domain.dto.business.AddBusinessDto;
 import com.ayds.zeday.domain.dto.business.BusinessDto;
+import com.ayds.zeday.domain.dto.business.BusinessIdDto;
 import com.ayds.zeday.domain.dto.business.BusinessLogoDto;
 import com.ayds.zeday.domain.dto.business.UpdateBusinessDto;
 import com.ayds.zeday.domain.exception.ValueNotFoundException;
@@ -47,20 +48,19 @@ public class BusinessController {
     }
 
     @PostMapping
-    @ResponseStatus(CREATED)
-    public void createBusiness(@RequestBody @Valid AddBusinessDto business) {
-        businessService.addBusiness(business);
+    public ResponseEntity<BusinessIdDto> createBusiness(@RequestBody @Valid AddBusinessDto business) {
+        return new ResponseEntity<>(new BusinessIdDto(businessService.addBusiness(business)), CREATED);
     }
 
     @PutMapping("/{businessId}")
     @ResponseStatus(NO_CONTENT)
-    public void updateBusiness(@PathVariable @Positive long businessId,
+    public void updateBusiness(@RequestHeader("CompanyId") @Positive long businessId,
             @RequestBody @Valid UpdateBusinessDto business) {
         businessService.updateBusiness(businessId, business);
     }
 
-    @PutMapping("/{businessId}")
-    public ResponseEntity<BusinessLogoDto> updateBusinessLogo(@PathVariable @Positive long businessId,
+    @PatchMapping("/{businessId}")
+    public ResponseEntity<BusinessLogoDto> updateBusinessLogo(@RequestHeader("CompanyId") @Positive long businessId,
             @RequestPart MultipartFile logo) {
         BusinessDto business = businessService.findBusiness(businessId)
                 .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar la compañia"));

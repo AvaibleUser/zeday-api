@@ -21,6 +21,11 @@ public class BusinessService {
 
     private final BusinessRepository businessRepository;
 
+    private BusinessEntity findById(long businessId) {
+        return businessRepository.findById(businessId)
+                .orElseThrow(() -> new ValueNotFoundException("La compañia no se pudo encontrar"));
+    }
+
     public Optional<BusinessDto> findBusiness(long businessId) {
         return businessRepository.findBusinessById(businessId);
     }
@@ -38,8 +43,7 @@ public class BusinessService {
 
     @Transactional
     public void updateBusiness(long businessId, UpdateBusinessDto business) {
-        BusinessEntity dbBusiness = businessRepository.findById(businessId)
-                .orElseThrow(() -> new ValueNotFoundException("La compañia no se pudo encontrar"));
+        BusinessEntity dbBusiness = findById(businessId);
 
         dbBusiness.setAutoAssignment(business.autoAssignment());
 
@@ -48,8 +52,7 @@ public class BusinessService {
 
     @Transactional
     public void addImageToBusiness(long businessId, String logoUrl) {
-        BusinessEntity dbBusiness = businessRepository.findById(businessId)
-                .orElseThrow(() -> new ValueNotFoundException("La compañia no se pudo encontrar"));
+        BusinessEntity dbBusiness = findById(businessId);
 
         dbBusiness.setLogoUrl(logoUrl);
 

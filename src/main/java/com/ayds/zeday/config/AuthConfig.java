@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,6 +19,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -54,15 +56,7 @@ public class AuthConfig {
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwtCustomizer -> jwtCustomizer
                                 .decoder(jwtDecoder)
-                                .jwtAuthenticationConverter(jwt -> {
-                                    long id = Long.parseLong(jwt.getSubject());
-                                    List<SimpleGrantedAuthority> authorities = jwt.getClaimAsStringList("auths")
-                                            .stream()
-                                            .map(SimpleGrantedAuthority::new)
-                                            .toList();
-
-                                    return new JwtAuthenticationToken(jwt, authorities, String.valueOf(id));
-                                })))
+                                .jwtAuthenticationConverter(this::convertJwtToAuthentication)))
                 .userDetailsService(userDetailsService)
                 .build();
     }
@@ -110,5 +104,15 @@ public class AuthConfig {
     @Bean
     ConcurrentMap<String, String> signUpCondifmationCodes() {
         return new ConcurrentHashMap<>();
+    }
+
+    public AbstractAuthenticationToken convertJwtToAuthentication(Jwt jwt) {
+        long id = Long.parseLong(jwt.getSubject());
+        List<SimpleGrantedAuthority> authorities = jwt.getClaimAsStringList("auths")
+                .stream()
+                .map(SimpleGrantedAuthority::new)
+                .toList();
+
+        return new JwtAuthenticationToken(jwt, authorities, String.valueOf(id));
     }
 }
