@@ -4,11 +4,7 @@ import java.time.Instant;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.rest.core.config.Projection;
 
-import com.ayds.zeday.domain.entity.UserEntity;
-
-@Projection(name = "public_user", types = { UserEntity.class })
 public interface UserDto {
 
     Long getId();

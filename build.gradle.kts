@@ -4,7 +4,7 @@ plugins {
 	id("org.springframework.boot") version "3.3.4"
 	id("io.spring.dependency-management") version "1.1.6"
 	id("org.hibernate.orm") version "6.5.3.Final"
-	id("org.graalvm.buildtools.native") version "0.10.3"
+	// id("org.graalvm.buildtools.native") version "0.10.3"
 }
 
 group = "com.ayds"
@@ -30,7 +30,6 @@ dependencies {
 	implementation(platform("software.amazon.awssdk:bom:2.28.6"))
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-	implementation("org.springframework.boot:spring-boot-starter-data-rest")
 	implementation("org.springframework.boot:spring-boot-starter-mail")
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 	implementation("org.springframework.boot:spring-boot-starter-security")
@@ -47,6 +46,8 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	testRuntimeOnly("com.h2database:h2")
+	testCompileOnly("org.projectlombok:lombok")
 }
 
 hibernate {
@@ -57,6 +58,7 @@ hibernate {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+	systemProperty("spring.profiles.active", "test")
 }
 tasks.jacocoTestReport {
 	dependsOn(tasks.test)

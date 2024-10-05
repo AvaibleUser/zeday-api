@@ -1,5 +1,7 @@
 package com.ayds.zeday.domain.entity;
 
+import static lombok.AccessLevel.PRIVATE;
+
 import java.time.Instant;
 import java.util.Set;
 
@@ -13,17 +15,22 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "business")
 @Getter
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @RequiredArgsConstructor
+@AllArgsConstructor(access = PRIVATE)
 @EqualsAndHashCode(of = "id")
 public class BusinessEntity {
 
@@ -35,11 +42,14 @@ public class BusinessEntity {
     @Column(nullable = false, unique = true)
     private String name;
 
+    @Setter
     @NonNull
     @Column(name = "auto_assignment", nullable = false)
     private Boolean autoAssignment;
 
-    private String logo_url;
+    @Setter
+    @Column(name = "logo_url")
+    private String logoUrl;
 
     private String timezone;
 
