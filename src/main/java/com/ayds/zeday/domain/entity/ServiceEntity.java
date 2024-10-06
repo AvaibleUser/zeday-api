@@ -2,19 +2,17 @@ package com.ayds.zeday.domain.entity;
 
 import static lombok.AccessLevel.PRIVATE;
 
-import java.time.Instant;
-import java.util.Set;
-
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import java.time.Duration;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -25,45 +23,35 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "business")
+@Table(name = "service", uniqueConstraints = @UniqueConstraint(columnNames = { "name", "business_id" }))
 @Getter
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @RequiredArgsConstructor
 @AllArgsConstructor(access = PRIVATE)
 @EqualsAndHashCode
-public class BusinessEntity {
+public class ServiceEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NonNull
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
     @Setter
     @NonNull
-    @Column(name = "auto_assignment", nullable = false)
-    private Boolean autoAssignment;
+    @Column(nullable = false)
+    private String description;
 
     @Setter
-    @Column(name = "logo_url")
-    private String logoUrl;
+    @NonNull
+    @Column(nullable = false)
+    private Duration duration;
 
-    private String timezone;
-
-    @OneToMany(mappedBy = "business")
-    private Set<RoleEntity> roles;
-
-    @OneToMany(mappedBy = "business")
-    private Set<UserEntity> users;
-
-    @CreationTimestamp
-    @Column(name = "created_at")
-    private Instant createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private Instant updatedAt;
+    @NonNull
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "business_id")
+    private BusinessEntity business;
 }

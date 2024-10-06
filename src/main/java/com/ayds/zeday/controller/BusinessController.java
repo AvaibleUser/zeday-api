@@ -52,14 +52,14 @@ public class BusinessController {
         return new ResponseEntity<>(new BusinessIdDto(businessService.addBusiness(business)), CREATED);
     }
 
-    @PutMapping("/{businessId}")
+    @PutMapping
     @ResponseStatus(NO_CONTENT)
     public void updateBusiness(@RequestHeader("CompanyId") @Positive long businessId,
             @RequestBody @Valid UpdateBusinessDto business) {
         businessService.updateBusiness(businessId, business);
     }
 
-    @PatchMapping("/{businessId}")
+    @PatchMapping
     public ResponseEntity<BusinessLogoDto> updateBusinessLogo(@RequestHeader("CompanyId") @Positive long businessId,
             @RequestPart MultipartFile logo) {
         BusinessDto business = businessService.findBusiness(businessId)

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -20,12 +21,11 @@ import com.ayds.zeday.domain.entity.BusinessEntity;
 import com.ayds.zeday.domain.exception.RequestConflictException;
 import com.ayds.zeday.domain.exception.ValueNotFoundException;
 import com.ayds.zeday.repository.BusinessRepository;
-import com.ayds.zeday.util.RandomUtils;
+import com.ayds.zeday.util.paramresolver.BusinessParamsResolver;
 
 @ZedayTest
+@ExtendWith(BusinessParamsResolver.class)
 public class BusinessServiceTest {
-
-    private static final RandomUtils random = new RandomUtils();
 
     @MockBean
     private BusinessRepository businessRepository;
@@ -34,16 +34,8 @@ public class BusinessServiceTest {
     private BusinessService businessService;
 
     @Test
-    public void canFindBusiness() {
-        long businessId = random.nextPositiveLong();
-        BusinessDto expectedBusiness = BusinessDto.builder()
-                .id(businessId)
-                .name(random.nextString())
-                .autoAssignment(random.nextBoolean())
-                .logoUrl(random.nextString())
-                .createdAt(random.nextInstant())
-                .updatedAt(random.nextInstant())
-                .build();
+    public void canFindBusiness(BusinessDto expectedBusiness) {
+        long businessId = expectedBusiness.id();
 
         given(businessRepository.findBusinessById(businessId))
                 .willReturn(Optional.of(expectedBusiness.toBuilder().build()));
@@ -54,9 +46,7 @@ public class BusinessServiceTest {
     }
 
     @Test
-    public void canFindBusinessAndNotFoundIt() {
-        long businessId = random.nextPositiveLong();
-
+    public void canFindBusinessAndNotFoundIt(long businessId) {
         given(businessRepository.findBusinessById(businessId)).willReturn(Optional.empty());
 
         Optional<BusinessDto> actualBusiness = businessService.findBusiness(businessId);
@@ -65,14 +55,8 @@ public class BusinessServiceTest {
     }
 
     @Test
-    public void canAddBusiness() {
-        long expectedBusinessId = random.nextPositiveLong();
-        BusinessEntity expectedBusiness = BusinessEntity.builder()
-                .id(expectedBusinessId)
-                .name(random.nextString())
-                .autoAssignment(random.nextBoolean())
-                .build();
-
+    public void canAddBusiness(BusinessEntity expectedBusiness) {
+        long expectedBusinessId = expectedBusiness.getId();
         AddBusinessDto businessDto = AddBusinessDto.builder()
                 .name(expectedBusiness.getName())
                 .autoAssignment(expectedBusiness.getAutoAssignment())
@@ -80,6 +64,7 @@ public class BusinessServiceTest {
 
         BusinessEntity business = expectedBusiness.toBuilder()
                 .id(null)
+                .logoUrl(null)
                 .build();
 
         given(businessRepository.existsByName(businessDto.name())).willReturn(false);
@@ -92,76 +77,55 @@ public class BusinessServiceTest {
     }
 
     @Test
-    public void canBlockAddBusinessWithDuplicateName() {
-        AddBusinessDto businessDto = AddBusinessDto.builder()
-                .name(random.nextString())
-                .autoAssignment(random.nextBoolean())
-                .build();
-
+    public void canBlockAddBusinessWithDuplicateName(AddBusinessDto businessDto) {
         given(businessRepository.existsByName(businessDto.name())).willReturn(true);
 
         assertThrows(RequestConflictException.class, () -> businessService.addBusiness(businessDto));
     }
 
     @Test
-    public void canUpdateBusiness() {
-        long businessId = random.nextPositiveLong();
-        boolean autoAssigment = random.nextBoolean();
+    public void canUpdateBusiness(BusinessEntity expectedBusiness) {
+        long businessId = expectedBusiness.getId();
+        boolean autoAssigment = expectedBusiness.getAutoAssignment();
         UpdateBusinessDto businessDto = new UpdateBusinessDto(autoAssigment);
-        BusinessEntity expectedBusiness = BusinessEntity.builder()
-                .id(businessId)
-                .name(random.nextString())
-                .autoAssignment(!autoAssigment)
-                .build();
 
-        given(businessRepository.findById(isA(Long.class))).willReturn(Optional.of(expectedBusiness));
-        given(businessRepository.save(isA(BusinessEntity.class))).willReturn(expectedBusiness.toBuilder()
-                .autoAssignment(autoAssigment)
-                .build());
+        given(businessRepository.findById(businessId)).willReturn(Optional.of(expectedBusiness.toBuilder()
+                .autoAssignment(!autoAssigment)
+                .build()));
+
+        given(businessRepository.save(isA(BusinessEntity.class))).willReturn(expectedBusiness.toBuilder().build());
 
         businessService.updateBusiness(businessId, businessDto);
 
-        verify(businessRepository).findById(businessId);
         verify(businessRepository).save(expectedBusiness);
     }
 
     @Test
-    public void canNotUpdateNotFoundBusiness() {
-        long businessId = random.nextPositiveLong();
-        UpdateBusinessDto businessDto = new UpdateBusinessDto(random.nextBoolean());
-
+    public void canNotUpdateNotFoundBusiness(long businessId, UpdateBusinessDto businessDto) {
         given(businessRepository.findById(businessId)).willReturn(Optional.empty());
 
         assertThrows(ValueNotFoundException.class, () -> businessService.updateBusiness(businessId, businessDto));
     }
 
     @Test
-    public void canAddImageToBusiness() {
-        long businessId = random.nextPositiveLong();
-        String logoPath = random.nextString();
-        BusinessEntity expectedBusiness = BusinessEntity.builder()
-                .id(businessId)
-                .name(random.nextString())
-                .autoAssignment(random.nextBoolean())
-                .logoUrl(logoPath)
-                .build();
+    public void canAddImageToBusiness(BusinessEntity expectedBusiness) {
+        long businessId = expectedBusiness.getId();
+        String logoPath = expectedBusiness.getLogoUrl();
 
-        given(businessRepository.findById(isA(Long.class))).willReturn(Optional.of(expectedBusiness));
+        given(businessRepository.findById(businessId))
+                .willReturn(Optional.of(expectedBusiness.toBuilder().build()));
+
         given(businessRepository.save(isA(BusinessEntity.class))).willReturn(expectedBusiness.toBuilder()
                 .logoUrl(null)
                 .build());
 
         businessService.addImageToBusiness(businessId, logoPath);
 
-        verify(businessRepository).findById(businessId);
         verify(businessRepository).save(expectedBusiness);
     }
 
     @Test
-    public void canNotAddImageToNotFoundBusiness() {
-        long businessId = random.nextPositiveLong();
-        String logoPath = random.nextString();
-
+    public void canNotAddImageToNotFoundBusiness(long businessId, String logoPath) {
         given(businessRepository.findById(businessId)).willReturn(Optional.empty());
 
         assertThrows(ValueNotFoundException.class, () -> businessService.addImageToBusiness(businessId, logoPath));

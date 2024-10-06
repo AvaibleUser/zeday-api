@@ -39,13 +39,13 @@ import lombok.Singular;
         @UniqueConstraint(columnNames = { "email", "business_id" }),
         @UniqueConstraint(columnNames = { "nit", "business_id" }),
         @UniqueConstraint(columnNames = { "cui", "business_id" }) })
-@Getter
 @Setter
-@Builder
+@Getter
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @RequiredArgsConstructor
 @AllArgsConstructor(access = PRIVATE)
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode
 public class UserEntity implements UserDetails {
 
     @Id
@@ -90,7 +90,7 @@ public class UserEntity implements UserDetails {
 
     private String timezone;
 
-    @ManyToOne// (optional = false)
+    @ManyToOne // (optional = false)
     @JoinColumn(name = "business_id")
     private BusinessEntity business;
 

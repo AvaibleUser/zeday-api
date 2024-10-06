@@ -1,24 +1,23 @@
 package com.ayds.zeday.service.user;
 
-import static java.util.function.Predicate.not;
-
 import java.util.Optional;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ObjectUtils;
 
 import com.ayds.zeday.domain.dto.user.AddUserDto;
+import com.ayds.zeday.domain.dto.user.MfaUserDto;
 import com.ayds.zeday.domain.dto.user.UpdateUserDto;
 import com.ayds.zeday.domain.dto.user.UserDto;
-import com.ayds.zeday.domain.dto.user.MfaUserDto;
 import com.ayds.zeday.domain.entity.RoleEntity;
 import com.ayds.zeday.domain.entity.UserEntity;
 import com.ayds.zeday.domain.exception.BadRequestException;
+import com.ayds.zeday.domain.exception.RequestConflictException;
 import com.ayds.zeday.domain.exception.ValueNotFoundException;
 import com.ayds.zeday.repository.RoleRepository;
 import com.ayds.zeday.repository.UserRepository;
@@ -72,14 +71,14 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar los registros del usuario"));
 
         user.phone()
-                .filter(not(ObjectUtils::isEmpty))
+                .filter(ObjectUtils::isNotEmpty)
                 .ifPresent(dbUser::setPhone);
 
         user.currentPassword()
-                .filter(not(ObjectUtils::isEmpty))
+                .filter(ObjectUtils::isNotEmpty)
                 .filter(passwd -> matchesInactive || encoder.matches(passwd, dbUser.getPassword()))
                 .flatMap(passwd -> user.newPassword())
-                .filter(not(ObjectUtils::isEmpty))
+                .filter(ObjectUtils::isNotEmpty)
                 .map(encoder::encode)
                 .ifPresent(dbUser::setPassword);
 
@@ -89,7 +88,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public void registerUser(AddUserDto user, String mfaSecret) {
         if (userRepository.existsByEmail(user.email())) {
-            throw new BadRequestException("El email que se intenta registrar ya esta en uso");
+            throw new RequestConflictException("El email que se intenta registrar ya esta en uso");
         }
         String encryptedPassword = encoder.encode(user.password());
 
