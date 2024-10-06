@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @NoArgsConstructor
 @RequiredArgsConstructor
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode
 public class RoleEntity {
 
     @Id

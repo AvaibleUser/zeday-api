@@ -18,6 +18,7 @@ import static org.springframework.http.HttpStatus.OK;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
@@ -33,8 +34,10 @@ import com.ayds.zeday.domain.exception.ValueNotFoundException;
 import com.ayds.zeday.service.business.BusinessService;
 import com.ayds.zeday.service.util.FileStorageService;
 import com.ayds.zeday.util.RandomUtils;
+import com.ayds.zeday.util.paramresolver.BusinessParamsResolver;
 
 @ZedayTest
+@ExtendWith(BusinessParamsResolver.class)
 public class BusinessControllerTest {
 
     private static final RandomUtils random = new RandomUtils();
@@ -48,21 +51,16 @@ public class BusinessControllerTest {
     @Autowired
     private BusinessController businessController;
 
-    private BusinessDto nextBusinessDto(long businessId, boolean logoUrl) {
-        return BusinessDto.builder()
-                .id(businessId)
-                .name(random.nextString())
-                .autoAssignment(random.nextBoolean())
-                .logoUrl(logoUrl ? random.nextString() : null)
-                .createdAt(random.nextInstant())
-                .updatedAt(random.nextInstant())
+    private BusinessDto addLogoUrl(BusinessDto business) {
+        return business.toBuilder()
+                .logoUrl(random.nextString())
                 .build();
     }
 
     @Test
-    public void canGetCurrentBusiness() {
-        long businessId = random.nextPositiveLong();
-        BusinessDto expectedBusiness = nextBusinessDto(businessId, true);
+    public void canGetCurrentBusiness(BusinessDto expectedBusiness) {
+        long businessId = expectedBusiness.id();
+        expectedBusiness = addLogoUrl(expectedBusiness);
 
         given(businessService.findBusiness(businessId))
                 .willReturn(Optional.of(expectedBusiness.toBuilder().build()));
@@ -79,9 +77,7 @@ public class BusinessControllerTest {
     }
 
     @Test
-    public void canNotFoundCurrentBusiness() {
-        long businessId = random.nextPositiveLong();
-
+    public void canNotFoundCurrentBusiness(long businessId) {
         given(businessService.findBusiness(businessId)).willReturn(Optional.empty());
 
         ResponseEntity<BusinessDto> actualBusiness = businessController.getCurrentBusiness(businessId);
@@ -92,13 +88,7 @@ public class BusinessControllerTest {
     }
 
     @Test
-    public void canCreateBusiness() {
-        long businessId = random.nextPositiveLong();
-        AddBusinessDto business = AddBusinessDto.builder()
-                .name(random.nextString())
-                .autoAssignment(random.nextBoolean())
-                .build();
-
+    public void canCreateBusiness(long businessId, AddBusinessDto business) {
         BusinessIdDto expectedBusiness = new BusinessIdDto(businessId);
 
         given(businessService.addBusiness(business.toBuilder().build()))
@@ -116,12 +106,7 @@ public class BusinessControllerTest {
     }
 
     @Test
-    public void canUpdateBusiness() {
-        long expectedBusinessId = random.nextPositiveLong();
-        UpdateBusinessDto expectedBusiness = UpdateBusinessDto.builder()
-                .autoAssignment(random.nextBoolean())
-                .build();
-
+    public void canUpdateBusiness(long expectedBusinessId, UpdateBusinessDto expectedBusiness) {
         willDoNothing().given(businessService).updateBusiness(isA(Long.class), isA(UpdateBusinessDto.class));
 
         businessController.updateBusiness(expectedBusinessId, expectedBusiness.toBuilder().build());
@@ -130,9 +115,8 @@ public class BusinessControllerTest {
     }
 
     @Test
-    public void canNotFoundCurrentBusinessForAddBusinessLogo() {
-        long businessId = random.nextPositiveLong();
-        MockMultipartFile logo = new MockMultipartFile(random.nextString(), random.nextString().getBytes());
+    public void canNotFoundCurrentBusinessForAddBusinessLogo(long businessId, String filename, String content) {
+        MockMultipartFile logo = new MockMultipartFile(filename, content.getBytes());
 
         given(businessService.findBusiness(isA(Long.class))).willReturn(Optional.empty());
 
@@ -143,22 +127,18 @@ public class BusinessControllerTest {
     }
 
     @Test
-    public void canAddBusinessLogo() {
-        long businessId = random.nextPositiveLong();
-        String logoPath = random.nextString();
-        MockMultipartFile logo = new MockMultipartFile(random.nextString(), random.nextString().getBytes());
+    public void canAddBusinessLogo(String logoPath, String filename, String content, BusinessDto business) {
+        long businessId = business.id();
+        MockMultipartFile logo = new MockMultipartFile(filename, content.getBytes());
         BusinessLogoDto expectedBusiness = new BusinessLogoDto(businessId, logoPath);
 
-        given(businessService.findBusiness(businessId))
-                .willReturn(Optional.of(nextBusinessDto(businessId, false)));
-
+        given(businessService.findBusiness(businessId)).willReturn(Optional.of(business.toBuilder().build()));
         given(fileStorageService.store(contains(String.valueOf(businessId)), eq(logo)))
                 .willReturn(logoPath);
 
         willDoNothing().given(businessService).addImageToBusiness(isA(Long.class), isA(String.class));
 
-        ResponseEntity<BusinessLogoDto> actualBusiness = businessController.updateBusinessLogo(businessId,
-                logo);
+        ResponseEntity<BusinessLogoDto> actualBusiness = businessController.updateBusinessLogo(businessId, logo);
 
         verify(businessService).addImageToBusiness(businessId, logoPath);
 
@@ -172,15 +152,12 @@ public class BusinessControllerTest {
     }
 
     @Test
-    public void canUpdateBusinessLogo() {
-        long businessId = random.nextPositiveLong();
-        String logoPath = random.nextString();
-        MockMultipartFile logo = new MockMultipartFile(random.nextString(), random.nextString().getBytes());
+    public void canUpdateBusinessLogo(String logoPath, String filename, BusinessDto business) {
+        long businessId = business.id();
+        MockMultipartFile logo = new MockMultipartFile(filename, random.nextString().getBytes());
         BusinessLogoDto expectedBusiness = new BusinessLogoDto(businessId, logoPath);
 
-        given(businessService.findBusiness(businessId))
-                .willReturn(Optional.of(nextBusinessDto(businessId, true)));
-
+        given(businessService.findBusiness(businessId)).willReturn(Optional.of(addLogoUrl(business)));
         given(fileStorageService.store(contains(String.valueOf(businessId)), eq(logo)))
                 .willReturn(logoPath);
 
