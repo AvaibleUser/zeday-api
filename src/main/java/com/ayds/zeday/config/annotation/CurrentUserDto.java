@@ -8,10 +8,14 @@ import java.lang.annotation.Target;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
+import com.ayds.zeday.domain.dto.user.UserDto;
+
 @Target({ ElementType.PARAMETER, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@AuthenticationPrincipal(expression = "@userService.findUserById(#this.getSubject()).get()")
+@AuthenticationPrincipal(expression = "@userRepository.findUserById(#this.getSubject(), #value).get()")
 public @interface CurrentUserDto {
+
+    Class<?> value() default UserDto.class;
 
 }

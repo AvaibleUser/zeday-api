@@ -13,14 +13,11 @@ import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 
-import com.ayds.zeday.config.annotation.ZedayTest;
 import com.ayds.zeday.property.TokenProperties;
-import com.ayds.zeday.util.RandomUtils;
+import com.ayds.zeday.util.annotation.ZedayTest;
 
 @ZedayTest
 public class AuthConfigTest {
-
-    private static final RandomUtils random = new RandomUtils();
 
     @Autowired
     private TokenProperties tokenProperties;
@@ -32,10 +29,7 @@ public class AuthConfigTest {
     private AuthConfig authConfig;
 
     @Test
-    public void canConvertJwtToAuthentication() {
-        long expectedId = random.nextPositiveLong();
-        List<String> expectedAuthorities = random.nextStrings();
-
+    public void canConvertJwtToAuthentication(long expectedId, List<String> expectedAuthorities) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")

@@ -3,16 +3,17 @@ package com.ayds.zeday.controller;
 import static java.util.function.Predicate.not;
 import static org.springframework.http.HttpStatus.ACCEPTED;
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.security.authentication.UsernamePasswordAuthenticationToken.unauthenticated;
 
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +38,7 @@ import com.ayds.zeday.service.util.TokenService;
 
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -59,11 +61,11 @@ public class AuthController {
 
     @PostMapping("/sign-up")
     @ResponseStatus(CREATED)
-    public void signUp(@RequestBody @Valid AddUserDto user) {
+    public void signUp(@RequestHeader("CompanyId") @Positive long businessId, @RequestBody @Valid AddUserDto user) {
         String mfaSecretKey = mfaAuthService.generateUserMfaSecretKey();
-        userService.registerUser(user, mfaSecretKey);
+        userService.registerUser(businessId, user, mfaSecretKey);
 
-        String code = authConfirmationService.generateEmailConfirmationCode(user.email());
+        String code = authConfirmationService.generateEmailConfirmationCode(businessId, user.email());
 
         Map<String, Object> templateVariables = Map.of("code", code.toCharArray(), "user", user);
 
@@ -78,14 +80,15 @@ public class AuthController {
     }
 
     @PutMapping("/sign-up")
-    public ResponseEntity<TokenDto> confirmSignUp(@RequestBody @Valid ConfirmUserDto user) {
-        boolean confirmed = authConfirmationService.confirmUserEmailCode(user.email(), user.code());
+    public ResponseEntity<TokenDto> confirmSignUp(@RequestHeader("CompanyId") @Positive long businessId,
+            @RequestBody @Valid ConfirmUserDto user) {
+        boolean confirmed = authConfirmationService.confirmUserEmailCode(businessId, user.email(), user.code());
 
         if (!confirmed) {
             throw new FailedAuthenticateException("No se pudo confirmar la cuenta");
         }
 
-        TokenDto token = userService.findUserByEmail(user.email())
+        TokenDto token = userService.findUserByEmail(businessId, user.email())
                 .map(this::toTokenDto)
                 .orElseThrow(() -> new InsufficientAuthenticationException("No se encontro el registro del usuario"));
 
@@ -93,11 +96,13 @@ public class AuthController {
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<?> signIn(@RequestBody @Valid AuthUserDto user) {
-        var authenticableUser = new UsernamePasswordAuthenticationToken(user.email(), user.password());
+    public ResponseEntity<?> signIn(@RequestHeader("CompanyId") @Positive long businessId,
+            @RequestBody @Valid AuthUserDto user) {
+        var authenticableUser = unauthenticated(user.email(), user.password());
+        authenticableUser.setDetails(businessId);
         authenticationManager.authenticate(authenticableUser);
 
-        return userService.findUserByEmail(user.email())
+        return userService.findUserByEmail(businessId, user.email())
                 .filter(not(UserDto::getActiveMfa))
                 .map(this::toTokenDto)
                 .map(ResponseEntity::ok)
@@ -105,8 +110,9 @@ public class AuthController {
     }
 
     @PostMapping("/sign-in/2fa")
-    public ResponseEntity<TokenDto> signInMfa(@RequestBody @Valid ConfirmUserDto user) {
-        MfaUserDto user2fa = userService.findMfaUserByEmail(user.email())
+    public ResponseEntity<TokenDto> signInMfa(@RequestHeader("CompanyId") @Positive long businessId,
+            @RequestBody @Valid ConfirmUserDto user) {
+        MfaUserDto user2fa = userService.findMfaUserByEmail(businessId, user.email())
                 .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar el registro del usuario"));
 
         if (!user2fa.getActiveMfa()) {
@@ -123,11 +129,12 @@ public class AuthController {
 
     @PostMapping("/recover-password")
     @ResponseStatus(ACCEPTED)
-    public void recoverPassword(@RequestBody @Valid RecoverUserDto user) {
-        UserDto dbUser = userService.findUserByEmail(user.email())
+    public void recoverPassword(@RequestHeader("CompanyId") @Positive long businessId,
+            @RequestBody @Valid RecoverUserDto user) {
+        UserDto dbUser = userService.findUserByEmail(businessId, user.email())
                 .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar el registro del usuario"));
 
-        String code = authConfirmationService.generateEmailConfirmationCode(dbUser.getEmail());
+        String code = authConfirmationService.generateEmailConfirmationCode(businessId, dbUser.getEmail());
 
         Map<String, Object> templateVariables = Map.of("code", code.toCharArray(), "user", dbUser);
 
@@ -142,14 +149,15 @@ public class AuthController {
     }
 
     @PutMapping("/recover-password")
-    public ResponseEntity<TokenDto> confirmRecoverPassword(@RequestBody @Valid ConfirmUserDto user) {
-        boolean confirmed = authConfirmationService.confirmUserEmailCode(user.email(), user.code());
+    public ResponseEntity<TokenDto> confirmRecoverPassword(@RequestHeader("CompanyId") @Positive long businessId,
+            @RequestBody @Valid ConfirmUserDto user) {
+        boolean confirmed = authConfirmationService.confirmUserEmailCode(businessId, user.email(), user.code());
 
         if (!confirmed) {
             throw new RequestConflictException("No se logro confirmar el cambio de contraseña");
         }
 
-        return userService.findUserByEmail(user.email())
+        return userService.findUserByEmail(businessId, user.email())
                 .map(this::toTokenDto)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar el registro del usuario"));

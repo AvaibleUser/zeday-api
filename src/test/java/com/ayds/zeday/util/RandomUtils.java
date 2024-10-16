@@ -15,6 +15,10 @@ public class RandomUtils {
 
     private RandomGenerator generator = RandomGenerator.getDefault();
 
+    public int nextPositiveInt() {
+        return generator.nextInt(Integer.MAX_VALUE) + 1;
+    }
+
     public long nextPositiveLong() {
         return generator.nextLong(Long.MAX_VALUE) + 1;
     }

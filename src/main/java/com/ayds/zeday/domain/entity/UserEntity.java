@@ -2,6 +2,7 @@ package com.ayds.zeday.domain.entity;
 
 import static jakarta.persistence.FetchType.EAGER;
 import static lombok.AccessLevel.PRIVATE;
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -26,26 +27,24 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.Singular;
 
-@Entity
+@Entity(name = "user")
 @Table(name = "user", uniqueConstraints = {
         @UniqueConstraint(columnNames = { "email", "business_id" }),
         @UniqueConstraint(columnNames = { "nit", "business_id" }),
         @UniqueConstraint(columnNames = { "cui", "business_id" }) })
-@Setter
-@Getter
+@Data
 @Builder(toBuilder = true)
+@EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @RequiredArgsConstructor
 @AllArgsConstructor(access = PRIVATE)
-@EqualsAndHashCode
 public class UserEntity implements UserDetails {
 
     @Id
@@ -61,7 +60,7 @@ public class UserEntity implements UserDetails {
     private String password;
 
     @NonNull
-    @Column(name = "mfa_secret", nullable = false)
+    @Column(nullable = false)
     private String mfaSecret;
 
     @NonNull
@@ -85,12 +84,13 @@ public class UserEntity implements UserDetails {
     private String phone;
 
     @Builder.Default
-    @Column(name = "active_mfa", nullable = false)
+    @Column(nullable = false)
     private Boolean activeMfa = false;
 
     private String timezone;
 
-    @ManyToOne // (optional = false)
+    @NonNull
+    @ManyToOne(optional = false)
     @JoinColumn(name = "business_id")
     private BusinessEntity business;
 
@@ -101,11 +101,11 @@ public class UserEntity implements UserDetails {
     private Set<RoleEntity> roles;
 
     @CreationTimestamp
-    @Column(name = "created_at")
+    @Column
     private Instant createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
+    @Column
     private Instant updatedAt;
 
     @Override
@@ -119,7 +119,11 @@ public class UserEntity implements UserDetails {
                 .map(RoleEntity::getPermissions)
                 .flatMap(Set::stream)
                 .distinct()
-                .map(permission -> permission.getModule().toUpperCase() + "::" + permission.getGrantAccess().name())
+                .map(permission -> permission.getModule().toUpperCase()
+                        + "@"
+                        + (isEmpty(permission.getSchedule()) ? "" : permission.getSchedule())
+                        + "::"
+                        + permission.getGrantAccess().name())
                 .map(SimpleGrantedAuthority::new)
                 .toList();
     }

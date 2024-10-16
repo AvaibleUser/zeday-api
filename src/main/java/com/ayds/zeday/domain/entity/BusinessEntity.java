@@ -17,21 +17,20 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
-@Entity
+@Entity(name = "business")
 @Table(name = "business")
-@Getter
+@Data
 @Builder(toBuilder = true)
+@EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @RequiredArgsConstructor
 @AllArgsConstructor(access = PRIVATE)
-@EqualsAndHashCode
 public class BusinessEntity {
 
     @Id
@@ -42,13 +41,11 @@ public class BusinessEntity {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Setter
     @NonNull
-    @Column(name = "auto_assignment", nullable = false)
+    @Column(nullable = false)
     private Boolean autoAssignment;
 
-    @Setter
-    @Column(name = "logo_url")
+    @Column
     private String logoUrl;
 
     private String timezone;
@@ -60,10 +57,10 @@ public class BusinessEntity {
     private Set<UserEntity> users;
 
     @CreationTimestamp
-    @Column(name = "created_at")
+    @Column
     private Instant createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
+    @Column
     private Instant updatedAt;
 }

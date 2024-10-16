@@ -1,6 +1,6 @@
 package com.ayds.zeday.domain.entity;
 
-import static jakarta.persistence.FetchType.EAGER;
+import static jakarta.persistence.CascadeType.PERSIST;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.time.Instant;
@@ -18,6 +18,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -27,17 +29,16 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.Singular;
 
-@Entity(name = "role")
-@Table(name = "role", uniqueConstraints = @UniqueConstraint(columnNames = { "name", "business_id" }))
+@Entity(name = "schedule")
+@Table(name = "schedule", uniqueConstraints = @UniqueConstraint(columnNames = { "title", "business_id" }))
 @Data
 @Builder(toBuilder = true)
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @RequiredArgsConstructor
 @AllArgsConstructor(access = PRIVATE)
-public class RoleEntity {
+public class ScheduleEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,24 +46,38 @@ public class RoleEntity {
 
     @NonNull
     @Column(nullable = false)
-    private String name;
+    private String title;
+
+    @Column
+    private String notes;
 
     @NonNull
-    private String description;
+    @OneToOne(optional = false, cascade = PERSIST)
+    @JoinColumn(name = "permission_id")
+    private PermissionEntity permission;
 
     @NonNull
-    @Column(nullable = false)
-    private Boolean multiuser;
+    @OneToOne(optional = false, cascade = PERSIST)
+    @JoinColumn(name = "role_id")
+    private RoleEntity role;
 
-    @ManyToOne
+    @NonNull
+    @ManyToOne(optional = false)
     @JoinColumn(name = "business_id")
     private BusinessEntity business;
 
-    @NonNull
-    @Singular
-    @ManyToMany(fetch = EAGER)
-    @JoinTable(name = "role_permission", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "permission_id"))
-    private Set<PermissionEntity> permissions;
+    @OneToMany(mappedBy = "schedule")
+    private Set<AvailabilityEntity> availabilities;
+
+    @OneToMany(mappedBy = "schedule")
+    private Set<UnavailabilityEntity> unavailabilities;
+
+    @OneToMany(mappedBy = "schedule")
+    private Set<AppointmentEntity> appointments;
+
+    @ManyToMany
+    @JoinTable(name = "schedule_service", joinColumns = @JoinColumn(name = "schedule_id"), inverseJoinColumns = @JoinColumn(name = "service_id"))
+    private Set<ServiceEntity> services;
 
     @CreationTimestamp
     @Column

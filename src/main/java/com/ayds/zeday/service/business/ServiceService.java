@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ayds.zeday.domain.dto.service.AddServiceDto;
 import com.ayds.zeday.domain.dto.service.ServiceDto;
@@ -33,6 +34,7 @@ public class ServiceService {
         return serviceRepository.findByIdAndBusinessId(serviceId, businessId, ServiceDto.class);
     }
 
+    @Transactional
     public void addService(long businessId, AddServiceDto service) {
         BusinessEntity business = businessRepository.findById(businessId)
                 .orElseThrow(() -> new ValueNotFoundException("No se encontro la compañia actual"));
@@ -45,12 +47,18 @@ public class ServiceService {
                 .name(service.name())
                 .description(service.description())
                 .duration(service.duration())
+                .cancellable(service.cancellable().orElse(false))
+                .maxDaysToCancel(service.maxDaysToCancel().orElse(Integer.MAX_VALUE))
+                .minDaysToSchedule(service.minDaysToSchedule().orElse(Integer.MAX_VALUE))
+                .maxDaysToSchedule(service.maxDaysToSchedule().orElse(Integer.MAX_VALUE))
+                .advancePaymentPercentage(service.advancePaymentPercentage().orElse(Integer.MAX_VALUE))
                 .business(business)
                 .build();
 
         serviceRepository.save(newService);
     }
 
+    @Transactional
     public void updateService(long businessId, long serviceId, UpdateServiceDto service) {
         ServiceEntity dbService = serviceRepository.findByIdAndBusinessId(serviceId, businessId, ServiceEntity.class)
                 .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar el servicio"));
@@ -61,6 +69,21 @@ public class ServiceService {
 
         service.duration()
                 .ifPresent(dbService::setDuration);
+
+        service.cancellable()
+                .ifPresent(dbService::setCancellable);
+
+        service.maxDaysToCancel()
+                .ifPresent(dbService::setMaxDaysToCancel);
+
+        service.minDaysToSchedule()
+                .ifPresent(dbService::setMinDaysToSchedule);
+
+        service.maxDaysToSchedule()
+                .ifPresent(dbService::setMaxDaysToSchedule);
+
+        service.advancePaymentPercentage()
+                .ifPresent(dbService::setAdvancePaymentPercentage);
 
         serviceRepository.save(dbService);
     }

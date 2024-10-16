@@ -1,6 +1,8 @@
 package com.ayds.zeday.service.business;
 
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class BusinessService {
 
     private final BusinessRepository businessRepository;
+    private final ConcurrentMap<Long, ConcurrentMap<String, String>> emailConfirmationCodes;
 
     private BusinessEntity findById(long businessId) {
         return businessRepository.findById(businessId)
@@ -35,8 +38,13 @@ public class BusinessService {
         if (businessRepository.existsByName(business.name())) {
             throw new RequestConflictException("El nombre de la compañia ya existe");
         }
-        BusinessEntity newBusiness = new BusinessEntity(business.name(), business.autoAssignment());
+        BusinessEntity newBusiness = BusinessEntity.builder()
+                .name(business.name())
+                .autoAssignment(business.autoAssignment().orElse(false))
+                .build();
+
         newBusiness = businessRepository.saveAndFlush(newBusiness);
+        emailConfirmationCodes.put(newBusiness.getId(), new ConcurrentHashMap<>());
 
         return newBusiness.getId();
     }

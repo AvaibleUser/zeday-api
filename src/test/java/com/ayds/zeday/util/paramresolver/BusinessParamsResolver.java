@@ -2,6 +2,7 @@ package com.ayds.zeday.util.paramresolver;
 
 import java.lang.reflect.Parameter;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -51,7 +52,7 @@ public class BusinessParamsResolver extends RandomParamsResolver {
     private AddBusinessDto getAddBusinessDto() {
         return AddBusinessDto.builder()
                 .name(random.nextString())
-                .autoAssignment(random.nextBoolean())
+                .autoAssignment(Optional.of(random.nextBoolean()))
                 .build();
     }
 
