@@ -1,10 +1,14 @@
 package com.ayds.zeday.controller;
 
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ayds.zeday.domain.dto.schedule.AddScheduleDto;
@@ -63,14 +68,31 @@ public class ScheduleController {
     }
 
     @PostMapping
+    @ResponseStatus(CREATED)
     public void createSchedule(@RequestHeader("CompanyId") @Positive long businessId,
             @RequestBody AddScheduleDto schedule) {
         scheduleService.addBusinessSchedule(businessId, schedule);
     }
 
     @PutMapping("/{scheduleId}")
+    @ResponseStatus(NO_CONTENT)
     public void updateSchedule(@RequestHeader("CompanyId") @Positive long businessId,
             @PathVariable @Positive long scheduleId, @RequestBody UpdateScheduleDto schedule) {
         scheduleService.updateBusinessSchedule(businessId, scheduleId, schedule);
     }
+
+    @PutMapping("/{scheduleId}/services/{serviceIds}")
+    @ResponseStatus(NO_CONTENT)
+    public void addServicesIntoSchedule(@RequestHeader("CompanyId") @Positive long businessId,
+            @PathVariable @Positive long scheduleId, @PathVariable @Positive List<Long> serviceId) {
+        scheduleService.addServicesToBusinessSchedule(businessId, scheduleId, serviceId);
+    }
+
+    @DeleteMapping("/{scheduleId}/services/{serviceIds}")
+    @ResponseStatus(NO_CONTENT)
+    public void removeServicesFromSchedule(@RequestHeader("CompanyId") @Positive long businessId,
+            @PathVariable @Positive long scheduleId, @PathVariable @Positive List<Long> serviceId) {
+        scheduleService.removeServicesToBusinessSchedule(businessId, scheduleId, serviceId);
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.ayds.zeday.domain.entity;
 
 import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.FetchType.EAGER;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.time.Instant;
@@ -75,7 +76,7 @@ public class ScheduleEntity {
     @OneToMany(mappedBy = "schedule")
     private Set<AppointmentEntity> appointments;
 
-    @ManyToMany
+    @ManyToMany(fetch = EAGER)
     @JoinTable(name = "schedule_service", joinColumns = @JoinColumn(name = "schedule_id"), inverseJoinColumns = @JoinColumn(name = "service_id"))
     private Set<ServiceEntity> services;
 

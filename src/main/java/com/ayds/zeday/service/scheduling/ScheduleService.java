@@ -16,11 +16,13 @@ import com.ayds.zeday.domain.entity.BusinessEntity;
 import com.ayds.zeday.domain.entity.PermissionEntity;
 import com.ayds.zeday.domain.entity.RoleEntity;
 import com.ayds.zeday.domain.entity.ScheduleEntity;
+import com.ayds.zeday.domain.entity.ServiceEntity;
 import com.ayds.zeday.domain.enums.AccessEnum;
 import com.ayds.zeday.domain.exception.RequestConflictException;
 import com.ayds.zeday.domain.exception.ValueNotFoundException;
 import com.ayds.zeday.repository.BusinessRepository;
 import com.ayds.zeday.repository.ScheduleRepository;
+import com.ayds.zeday.repository.ServiceRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,6 +32,7 @@ public class ScheduleService {
 
     private final BusinessRepository businessRepository;
     private final ScheduleRepository scheduleRepository;
+    private final ServiceRepository serviceRepository;
 
     public List<GeneralScheduleDto> findAllBusinessSchedules(long businessId) {
         return scheduleRepository.findAllByBusinessId(businessId, GeneralScheduleDto.class);
@@ -88,5 +91,48 @@ public class ScheduleService {
         scheduleDb.setNotes(schedule.notes());
 
         scheduleRepository.save(scheduleDb);
+    }
+
+    @Transactional
+    private void toggleServicesToBusinessSchedule(long businessId, long scheduleId, List<Long> serviceIds,
+            boolean add) {
+        ScheduleEntity scheduleDb = scheduleRepository
+                .findByIdAndBusinessId(scheduleId, businessId, ScheduleEntity.class)
+                .orElseThrow(() -> new ValueNotFoundException("El horario no se pudo encontrar"));
+
+        List<Long> actualServiceIds = scheduleDb.getServices()
+                .stream()
+                .map(ServiceEntity::getId)
+                .toList();
+
+        if (add) {
+            serviceIds.removeAll(actualServiceIds);
+        } else {
+            serviceIds.retainAll(actualServiceIds);
+        }
+
+        List<ServiceEntity> servicesToAdd = serviceRepository.findAllById(serviceIds);
+
+        if (serviceIds.containsAll(servicesToAdd.stream().map(ServiceEntity::getId).toList())) {
+            throw new ValueNotFoundException("No se pudieron encontrar todos los servicios");
+        }
+
+        if (add) {
+            scheduleDb.getServices().addAll(servicesToAdd);
+        } else {
+            scheduleDb.getServices().removeAll(servicesToAdd);
+        }
+
+        scheduleRepository.save(scheduleDb);
+    }
+
+    @Transactional
+    public void addServicesToBusinessSchedule(long businessId, long scheduleId, List<Long> serviceIds) {
+        toggleServicesToBusinessSchedule(businessId, scheduleId, serviceIds, true);
+    }
+
+    @Transactional
+    public void removeServicesToBusinessSchedule(long businessId, long scheduleId, List<Long> serviceIds) {
+        toggleServicesToBusinessSchedule(businessId, scheduleId, serviceIds, false);
     }
 }
