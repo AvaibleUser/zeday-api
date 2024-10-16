@@ -2,8 +2,10 @@ package com.ayds.zeday.domain.entity;
 
 import static lombok.AccessLevel.PRIVATE;
 
-import java.time.Duration;
+import java.time.DayOfWeek;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -16,7 +18,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,15 +26,15 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-@Entity(name = "service")
-@Table(name = "service", uniqueConstraints = @UniqueConstraint(columnNames = { "name", "business_id" }))
+@Entity(name = "availability")
+@Table(name = "availability")
 @Data
 @Builder(toBuilder = true)
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @RequiredArgsConstructor
 @AllArgsConstructor(access = PRIVATE)
-public class ServiceEntity {
+public class AvailabilityEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,44 +42,26 @@ public class ServiceEntity {
 
     @NonNull
     @Column(nullable = false)
-    private String name;
+    private LocalTime startAt;
 
     @NonNull
     @Column(nullable = false)
-    private String description;
+    private LocalTime endAt;
 
     @NonNull
     @Column(nullable = false)
-    private Duration duration;
+    private Boolean recurring;
 
     @NonNull
-    @Column(nullable = false)
-    private Double price;
+    @Column(columnDefinition = "ENUM('MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY')")
+    private DayOfWeek dayOfWeek;
 
-    @NonNull
-    @Column(nullable = false)
-    private Boolean cancellable;
-
-    @NonNull
-    @Column(nullable = false)
-    private Integer maxDaysToCancel;
-
-    @NonNull
-    @Column(nullable = false)
-    private Integer minDaysToSchedule;
-
-    @NonNull
-    @Column(nullable = false)
-    private Integer maxDaysToSchedule;
-
-    @NonNull
-    @Column(nullable = false)
-    private Integer advancePaymentPercentage;
+    private LocalDate specificDay;
 
     @NonNull
     @ManyToOne(optional = false)
-    @JoinColumn(name = "business_id")
-    private BusinessEntity business;
+    @JoinColumn(name = "schedule_id")
+    private ScheduleEntity schedule;
 
     @CreationTimestamp
     @Column

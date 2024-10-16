@@ -24,7 +24,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 
-import com.ayds.zeday.config.annotation.ZedayTest;
 import com.ayds.zeday.domain.dto.business.AddBusinessDto;
 import com.ayds.zeday.domain.dto.business.BusinessDto;
 import com.ayds.zeday.domain.dto.business.BusinessIdDto;
@@ -34,6 +33,7 @@ import com.ayds.zeday.domain.exception.ValueNotFoundException;
 import com.ayds.zeday.service.business.BusinessService;
 import com.ayds.zeday.service.util.FileStorageService;
 import com.ayds.zeday.util.RandomUtils;
+import com.ayds.zeday.util.annotation.ZedayTest;
 import com.ayds.zeday.util.paramresolver.BusinessParamsResolver;
 
 @ZedayTest

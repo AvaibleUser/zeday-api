@@ -1,6 +1,7 @@
 package com.ayds.zeday.domain.entity;
 
 import static jakarta.persistence.EnumType.STRING;
+import static lombok.AccessLevel.PRIVATE;
 
 import java.time.Instant;
 
@@ -15,19 +16,26 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-@Entity
-@Table(name = "permission")
-@Getter
+@Entity(name = "permission")
+@Table(name = "permission", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "module", "grantAccess" }) })
+@Data
+@Builder(toBuilder = true)
+@EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @RequiredArgsConstructor
-@EqualsAndHashCode
+@AllArgsConstructor(access = PRIVATE)
 public class PermissionEntity {
 
     @Id
@@ -40,18 +48,17 @@ public class PermissionEntity {
 
     @NonNull
     @Enumerated(STRING)
-    @Column(name = "grant_access", nullable = false, columnDefinition = "ENUM('READ', 'CREATE', 'UPDATE', 'DELETE')")
+    @Column(nullable = false, columnDefinition = "ENUM('READ', 'CREATE', 'UPDATE', 'DELETE')")
     private AccessEnum grantAccess;
 
-    // @ManyToOne
-    // @JoinColumn(name = "schedule_id")
-    // private ScheduleEntity schedule;
+    @OneToOne(mappedBy = "permission")
+    private ScheduleEntity schedule;
 
     @CreationTimestamp
-    @Column(name = "created_at")
+    @Column
     private Instant createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
+    @Column
     private Instant updatedAt;
 }

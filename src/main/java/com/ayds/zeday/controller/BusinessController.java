@@ -49,7 +49,9 @@ public class BusinessController {
 
     @PostMapping
     public ResponseEntity<BusinessIdDto> createBusiness(@RequestBody @Valid AddBusinessDto business) {
-        return new ResponseEntity<>(new BusinessIdDto(businessService.addBusiness(business)), CREATED);
+        long newBusinessId = businessService.addBusiness(business);
+
+        return new ResponseEntity<>(new BusinessIdDto(newBusinessId), CREATED);
     }
 
     @PutMapping

@@ -10,10 +10,11 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import com.ayds.zeday.config.annotation.ZedayTest;
 import com.ayds.zeday.domain.dto.business.AddBusinessDto;
 import com.ayds.zeday.domain.dto.business.BusinessDto;
 import com.ayds.zeday.domain.dto.business.UpdateBusinessDto;
@@ -21,11 +22,16 @@ import com.ayds.zeday.domain.entity.BusinessEntity;
 import com.ayds.zeday.domain.exception.RequestConflictException;
 import com.ayds.zeday.domain.exception.ValueNotFoundException;
 import com.ayds.zeday.repository.BusinessRepository;
+import com.ayds.zeday.util.annotation.ZedayTest;
 import com.ayds.zeday.util.paramresolver.BusinessParamsResolver;
+import com.ayds.zeday.util.paramresolver.UserParamsResolver;
 
 @ZedayTest
-@ExtendWith(BusinessParamsResolver.class)
+@ExtendWith({ BusinessParamsResolver.class, UserParamsResolver.class })
 public class BusinessServiceTest {
+
+    @Captor
+    private ArgumentCaptor<BusinessEntity> businessCaptor;
 
     @MockBean
     private BusinessRepository businessRepository;
@@ -59,7 +65,7 @@ public class BusinessServiceTest {
         long expectedBusinessId = expectedBusiness.getId();
         AddBusinessDto businessDto = AddBusinessDto.builder()
                 .name(expectedBusiness.getName())
-                .autoAssignment(expectedBusiness.getAutoAssignment())
+                .autoAssignment(Optional.ofNullable(expectedBusiness.getAutoAssignment()))
                 .build();
 
         BusinessEntity business = expectedBusiness.toBuilder()
@@ -73,11 +79,13 @@ public class BusinessServiceTest {
 
         long actualBusinessId = businessService.addBusiness(businessDto);
 
-        then(actualBusinessId).isEqualTo(expectedBusinessId);
+        then(actualBusinessId)
+                .usingRecursiveComparison()
+                .isEqualTo(expectedBusinessId);
     }
 
     @Test
-    public void canBlockAddBusinessWithDuplicateName(AddBusinessDto businessDto) {
+    public void canBlockAddBusinessWithDuplicateName(AddBusinessDto businessDto, String mfaSecret) {
         given(businessRepository.existsByName(businessDto.name())).willReturn(true);
 
         assertThrows(RequestConflictException.class, () -> businessService.addBusiness(businessDto));
@@ -97,7 +105,11 @@ public class BusinessServiceTest {
 
         businessService.updateBusiness(businessId, businessDto);
 
-        verify(businessRepository).save(expectedBusiness);
+        verify(businessRepository).save(businessCaptor.capture());
+
+        then(businessCaptor.getValue())
+                .usingRecursiveComparison()
+                .isEqualTo(expectedBusiness);
     }
 
     @Test
@@ -121,7 +133,11 @@ public class BusinessServiceTest {
 
         businessService.addImageToBusiness(businessId, logoPath);
 
-        verify(businessRepository).save(expectedBusiness);
+        verify(businessRepository).save(businessCaptor.capture());
+
+        then(businessCaptor.getValue())
+                .usingRecursiveComparison()
+                .isEqualTo(expectedBusiness);
     }
 
     @Test

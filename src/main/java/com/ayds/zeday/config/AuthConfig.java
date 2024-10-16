@@ -6,6 +6,7 @@ import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -102,8 +103,8 @@ public class AuthConfig {
     }
 
     @Bean
-    ConcurrentMap<String, String> signUpCondifmationCodes() {
-        return new ConcurrentHashMap<>();
+    ConcurrentMap<Long, ConcurrentMap<String, String>> signUpCondifmationCodes() {
+        return new ConcurrentHashMap<>(Map.of(1L, new ConcurrentHashMap<>()));
     }
 
     public AbstractAuthenticationToken convertJwtToAuthentication(Jwt jwt) {

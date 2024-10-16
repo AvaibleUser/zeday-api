@@ -61,6 +61,11 @@ public class ServiceParamsResolver extends RandomParamsResolver {
                 .name(random.nextString())
                 .description(random.nextString())
                 .duration(random.nextDuration())
+                .cancellable(random.nextBoolean())
+                .maxDaysToCancel(random.nextPositiveInt())
+                .minDaysToSchedule(random.nextPositiveInt())
+                .maxDaysToSchedule(random.nextPositiveInt())
+                .advancePaymentPercentage(random.nextPositiveInt())
                 .build();
     }
 
@@ -69,6 +74,11 @@ public class ServiceParamsResolver extends RandomParamsResolver {
                 .name(random.nextString())
                 .description(random.nextString())
                 .duration(random.nextDuration())
+                .cancellable(Optional.empty())
+                .maxDaysToCancel(Optional.empty())
+                .minDaysToSchedule(Optional.empty())
+                .maxDaysToSchedule(Optional.empty())
+                .advancePaymentPercentage(Optional.empty())
                 .build();
     }
 
@@ -76,6 +86,11 @@ public class ServiceParamsResolver extends RandomParamsResolver {
         return UpdateServiceDto.builder()
                 .description(Optional.of(random.nextString()))
                 .duration(Optional.of(random.nextDuration()))
+                .cancellable(Optional.empty())
+                .maxDaysToCancel(Optional.empty())
+                .minDaysToSchedule(Optional.empty())
+                .maxDaysToSchedule(Optional.empty())
+                .advancePaymentPercentage(Optional.empty())
                 .build();
     }
 
@@ -84,6 +99,11 @@ public class ServiceParamsResolver extends RandomParamsResolver {
                 .name(random.nextString())
                 .description(random.nextString())
                 .duration(random.nextDuration())
+                .cancellable(random.nextBoolean())
+                .maxDaysToCancel(random.nextPositiveInt())
+                .minDaysToSchedule(random.nextPositiveInt())
+                .maxDaysToSchedule(random.nextPositiveInt())
+                .advancePaymentPercentage(random.nextPositiveInt())
                 .business(mock(BusinessEntity.class))
                 .build();
     }

@@ -1,4 +1,4 @@
-package com.ayds.zeday.config.annotation;
+package com.ayds.zeday.util.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

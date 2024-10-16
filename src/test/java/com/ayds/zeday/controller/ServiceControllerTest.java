@@ -17,11 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
 
-import com.ayds.zeday.config.annotation.ZedayTest;
 import com.ayds.zeday.domain.dto.service.AddServiceDto;
 import com.ayds.zeday.domain.dto.service.ServiceDto;
 import com.ayds.zeday.domain.dto.service.UpdateServiceDto;
 import com.ayds.zeday.service.business.ServiceService;
+import com.ayds.zeday.util.annotation.ZedayTest;
 import com.ayds.zeday.util.paramresolver.ServiceParamsResolver;
 
 @ZedayTest

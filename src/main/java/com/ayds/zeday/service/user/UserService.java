@@ -14,11 +14,13 @@ import com.ayds.zeday.domain.dto.user.AddUserDto;
 import com.ayds.zeday.domain.dto.user.MfaUserDto;
 import com.ayds.zeday.domain.dto.user.UpdateUserDto;
 import com.ayds.zeday.domain.dto.user.UserDto;
+import com.ayds.zeday.domain.entity.BusinessEntity;
 import com.ayds.zeday.domain.entity.RoleEntity;
 import com.ayds.zeday.domain.entity.UserEntity;
 import com.ayds.zeday.domain.exception.BadRequestException;
 import com.ayds.zeday.domain.exception.RequestConflictException;
 import com.ayds.zeday.domain.exception.ValueNotFoundException;
+import com.ayds.zeday.repository.BusinessRepository;
 import com.ayds.zeday.repository.RoleRepository;
 import com.ayds.zeday.repository.UserRepository;
 
@@ -30,28 +32,28 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final BusinessRepository businessRepository;
     private final PasswordEncoder encoder;
 
-    public Optional<UserDto> findUserById(Long userId) {
-        return userRepository.findById(userId, UserDto.class);
+    public Optional<UserDto> findUserById(long businessId, long userId) {
+        return userRepository.findByIdAndBusinessId(userId, businessId, UserDto.class);
     }
 
-    public Optional<UserDto> findUserByEmail(String email) {
-        return userRepository.findByEmail(email, UserDto.class);
+    public Optional<UserDto> findUserByEmail(long businessId, String email) {
+        return userRepository.findByEmailAndBusinessId(email, businessId, UserDto.class);
     }
 
-    public Optional<MfaUserDto> findMfaUserByEmail(String email) {
-        return userRepository.findByEmail(email, MfaUserDto.class);
+    public Optional<MfaUserDto> findMfaUserByEmail(long businessId, String email) {
+        return userRepository.findByEmailAndBusinessId(email, businessId, MfaUserDto.class);
     }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email, UserEntity.class)
-                .orElseThrow(() -> new UsernameNotFoundException("No se pudo encontrar al usuario"));
+        throw new UsernameNotFoundException("No se pudo encontrar al usuario");
     }
 
     @Transactional
-    public void changeUserPassword(Long userId, String password, String repeatedPassword) {
+    public void changeUserPassword(long businessId, long userId, String password, String repeatedPassword) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar los registros del usuario"));
 
@@ -66,7 +68,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void changeUserInfo(Long userId, UpdateUserDto user, boolean matchesInactive) {
+    public void changeUserInfo(long businessId, long userId, UpdateUserDto user, boolean matchesInactive) {
         UserEntity dbUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar los registros del usuario"));
 
@@ -86,8 +88,11 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void registerUser(AddUserDto user, String mfaSecret) {
-        if (userRepository.existsByEmail(user.email())) {
+    public void registerUser(long businessId, AddUserDto user, String mfaSecret) {
+        BusinessEntity business = businessRepository.findById(businessId)
+                .orElseThrow(() -> new ValueNotFoundException("No se encontro la compañia actual"));
+
+        if (userRepository.existsByEmailAndBusinessId(user.email(), businessId)) {
             throw new RequestConflictException("El email que se intenta registrar ya esta en uso");
         }
         String encryptedPassword = encoder.encode(user.password());
@@ -105,6 +110,7 @@ public class UserService implements UserDetailsService {
                 .cui(user.cui())
                 .phone(user.phone())
                 .role(role)
+                .business(business)
                 .build();
 
         userRepository.save(newUser);
