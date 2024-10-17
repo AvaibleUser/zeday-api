@@ -52,7 +52,6 @@ public class AvailabilityEntity {
     @Column(nullable = false)
     private Boolean recurring;
 
-    @NonNull
     @Column(columnDefinition = "ENUM('MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY')")
     private DayOfWeek dayOfWeek;
 
