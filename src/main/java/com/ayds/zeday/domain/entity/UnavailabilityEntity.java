@@ -47,6 +47,8 @@ public class UnavailabilityEntity {
     @Column(nullable = false)
     private LocalTime endAt;
 
+    @NonNull
+    @Column(nullable = false)
     private LocalDate specificDay;
 
     @NonNull
