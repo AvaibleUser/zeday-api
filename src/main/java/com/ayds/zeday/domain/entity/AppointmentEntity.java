@@ -3,7 +3,6 @@ package com.ayds.zeday.domain.entity;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.time.Instant;
-import java.time.LocalTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -42,11 +41,11 @@ public class AppointmentEntity {
 
     @NonNull
     @Column(nullable = false)
-    private LocalTime startAt;
+    private Instant startAt;
 
     @NonNull
     @Column(nullable = false)
-    private LocalTime endAt;
+    private Instant endAt;
 
     @Builder.Default
     @Column(columnDefinition = "ENUM('SCHEDULED', 'CANCELLED', 'COMPLETED', 'NOT_ARRIVED')")

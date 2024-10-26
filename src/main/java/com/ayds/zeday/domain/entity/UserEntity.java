@@ -23,6 +23,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -99,6 +100,12 @@ public class UserEntity implements UserDetails {
     @ManyToMany(fetch = EAGER)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<RoleEntity> roles;
+
+    @OneToMany(mappedBy = "customer")
+    private Set<AppointmentEntity> scheduledAppointments;
+
+    @OneToMany(mappedBy = "attendant")
+    private Set<AppointmentEntity> assignedAppointments;
 
     @CreationTimestamp
     @Column

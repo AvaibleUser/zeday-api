@@ -23,6 +23,7 @@ import com.ayds.zeday.domain.dto.service.ServiceDto;
 import com.ayds.zeday.domain.dto.service.UpdateServiceDto;
 import com.ayds.zeday.service.business.ServiceService;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
@@ -51,14 +52,14 @@ public class ServiceController {
     @PostMapping
     @ResponseStatus(CREATED)
     public void createBusinessService(@RequestHeader("CompanyId") @Positive long businessId,
-            @RequestBody AddServiceDto service) {
+            @RequestBody @Valid AddServiceDto service) {
         serviceService.addService(businessId, service);
     }
 
     @PutMapping("/{serviceId}")
     @ResponseStatus(NO_CONTENT)
     public void updateBusinessService(@RequestHeader("CompanyId") @Positive long businessId,
-            @PathVariable @Positive long serviceId, @RequestBody UpdateServiceDto service) {
+            @PathVariable @Positive long serviceId, @RequestBody @Valid UpdateServiceDto service) {
         serviceService.updateService(businessId, serviceId, service);
     }
 

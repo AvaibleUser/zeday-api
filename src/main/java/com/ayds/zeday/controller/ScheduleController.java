@@ -26,6 +26,7 @@ import com.ayds.zeday.domain.dto.schedule.ScheduleDto;
 import com.ayds.zeday.domain.dto.schedule.UpdateScheduleDto;
 import com.ayds.zeday.service.scheduling.ScheduleService;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -70,14 +71,14 @@ public class ScheduleController {
     @PostMapping
     @ResponseStatus(CREATED)
     public void createSchedule(@RequestHeader("CompanyId") @Positive long businessId,
-            @RequestBody AddScheduleDto schedule) {
+            @RequestBody @Valid AddScheduleDto schedule) {
         scheduleService.addBusinessSchedule(businessId, schedule);
     }
 
     @PutMapping("/{scheduleId}")
     @ResponseStatus(NO_CONTENT)
     public void updateSchedule(@RequestHeader("CompanyId") @Positive long businessId,
-            @PathVariable @Positive long scheduleId, @RequestBody UpdateScheduleDto schedule) {
+            @PathVariable @Positive long scheduleId, @RequestBody @Valid UpdateScheduleDto schedule) {
         scheduleService.updateBusinessSchedule(businessId, scheduleId, schedule);
     }
 

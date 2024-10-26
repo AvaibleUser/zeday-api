@@ -13,6 +13,7 @@ import com.ayds.zeday.domain.dto.unavailability.AddUnavailabilityDto;
 import com.ayds.zeday.domain.dto.unavailability.UpdateUnavailabilityDto;
 import com.ayds.zeday.service.scheduling.UnavailabilityService;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
@@ -25,13 +26,13 @@ public class UnavailabilityController {
 
     @PostMapping
     public void createUnavailability(@RequestHeader("CompanyId") @Positive long businessId,
-            @PathVariable @Positive long scheduleId, @RequestBody AddUnavailabilityDto unavailability) {
+            @PathVariable @Positive long scheduleId, @RequestBody @Valid AddUnavailabilityDto unavailability) {
         unavailabilityService.addScheduleUnavailability(businessId, scheduleId, unavailability);
     }
 
     @PutMapping("/{availabilityId}")
     public void updateUnavailability(@RequestHeader("CompanyId") @Positive long businessId,
-            @PathVariable @Positive long scheduleId, @RequestBody UpdateUnavailabilityDto unavailability) {
+            @PathVariable @Positive long scheduleId, @RequestBody @Valid UpdateUnavailabilityDto unavailability) {
         unavailabilityService.updateScheduleUnavailability(businessId, scheduleId, scheduleId, unavailability);
     }
 
