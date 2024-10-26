@@ -50,15 +50,14 @@ public class RoleEntity {
     @NonNull
     private String description;
 
-    @NonNull
+    @Builder.Default
     @Column(nullable = false)
-    private Boolean multiuser;
+    private Boolean multiuser = false;
 
     @ManyToOne
     @JoinColumn(name = "business_id")
     private BusinessEntity business;
 
-    @NonNull
     @Singular
     @ManyToMany(fetch = EAGER)
     @JoinTable(name = "role_permission", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "permission_id"))

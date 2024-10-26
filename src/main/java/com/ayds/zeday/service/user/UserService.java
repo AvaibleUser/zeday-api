@@ -65,6 +65,16 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
+    public void activateUserMfa(long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar los registros del usuario"));
+
+        user.setActiveMfa(true);
+
+        userRepository.save(user);
+    }
+
+    @Transactional
     public void changeUserInfo(long userId, UpdateUserDto user) {
         UserEntity dbUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar los registros del usuario"));

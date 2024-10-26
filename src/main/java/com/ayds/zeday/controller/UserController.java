@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ayds.zeday.config.annotation.CurrentUserDto;
 import com.ayds.zeday.domain.dto.TokenDto;
 import com.ayds.zeday.domain.dto.business.BusinessDto;
+import com.ayds.zeday.domain.dto.user.ConfirmMfaDto;
 import com.ayds.zeday.domain.dto.user.MfaSecretDto;
 import com.ayds.zeday.domain.dto.user.MfaUserDto;
 import com.ayds.zeday.domain.dto.user.UpdateUserDto;
@@ -80,5 +82,16 @@ public class UserController {
                 me.getMfaSecret());
 
         return ResponseEntity.ok(new MfaSecretDto(qrUrl, me.getMfaSecret()));
+    }
+
+    @PatchMapping("/multifactor-authentication")
+    @ResponseStatus(NO_CONTENT)
+    public void addMultiFactorAuthentication(@CurrentUserDto(MfaUserDto.class) MfaUserDto me,
+            @RequestBody ConfirmMfaDto code) {
+        if (!mfaAuthService.authencateUserWithMfaAuth(me.getMfaSecret(), Integer.parseInt(code.code()))) {
+            throw new BadRequestException("El codigo no es valido");
+        }
+
+        userService.activateUserMfa(me.getId());
     }
 }
