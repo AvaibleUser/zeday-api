@@ -127,10 +127,8 @@ public class UserEntity implements UserDetails {
                 .flatMap(Set::stream)
                 .distinct()
                 .map(permission -> permission.getModule().toUpperCase()
-                        + "@"
-                        + (isEmpty(permission.getSchedule()) ? "" : permission.getSchedule())
-                        + "::"
-                        + permission.getGrantAccess().name())
+                        + (isEmpty(permission.getSchedule()) ? "" : "@" + permission.getSchedule())
+                        + "::" + permission.getGrantAccess().name())
                 .map(SimpleGrantedAuthority::new)
                 .toList();
     }

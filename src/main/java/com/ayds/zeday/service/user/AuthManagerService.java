@@ -30,7 +30,7 @@ public class AuthManagerService implements AuthenticationManager {
     public Authentication authenticate(Authentication authUser) throws AuthenticationException {
         String email = authUser.getPrincipal().toString();
         String password = authUser.getCredentials().toString();
-        long businessId = Long.parseLong((String) authUser.getDetails());
+        long businessId = (Long) authUser.getDetails();
 
         if (!signUpConfirmationCodes.containsKey(businessId)) {
             throw new ValueNotFoundException("No se pudo encontrar la compañia");

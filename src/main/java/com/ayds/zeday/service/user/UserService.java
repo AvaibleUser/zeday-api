@@ -1,5 +1,6 @@
 package com.ayds.zeday.service.user;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -17,7 +18,6 @@ import com.ayds.zeday.domain.dto.user.UserDto;
 import com.ayds.zeday.domain.entity.BusinessEntity;
 import com.ayds.zeday.domain.entity.RoleEntity;
 import com.ayds.zeday.domain.entity.UserEntity;
-import com.ayds.zeday.domain.exception.BadRequestException;
 import com.ayds.zeday.domain.exception.RequestConflictException;
 import com.ayds.zeday.domain.exception.ValueNotFoundException;
 import com.ayds.zeday.repository.BusinessRepository;
@@ -53,14 +53,11 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void changeUserPassword(long businessId, long userId, String password, String repeatedPassword) {
+    public void changeUserPassword(long userId, String password) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar los registros del usuario"));
 
         String encryptedPassword = encoder.encode(password);
-        if (encoder.matches(repeatedPassword, encryptedPassword)) {
-            throw new BadRequestException("Las contraseñas no coinciden");
-        }
 
         user.setPassword(encryptedPassword);
 
@@ -68,7 +65,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void changeUserInfo(long businessId, long userId, UpdateUserDto user, boolean matchesInactive) {
+    public void changeUserInfo(long userId, UpdateUserDto user) {
         UserEntity dbUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar los registros del usuario"));
 
@@ -78,13 +75,38 @@ public class UserService implements UserDetailsService {
 
         user.currentPassword()
                 .filter(ObjectUtils::isNotEmpty)
-                .filter(passwd -> matchesInactive || encoder.matches(passwd, dbUser.getPassword()))
+                .filter(passwd -> encoder.matches(passwd, dbUser.getPassword()))
                 .flatMap(passwd -> user.newPassword())
                 .filter(ObjectUtils::isNotEmpty)
                 .map(encoder::encode)
                 .ifPresent(dbUser::setPassword);
 
         userRepository.save(dbUser);
+    }
+
+    @Transactional
+    public void toggleUserRoles(long businessId, long userId, List<Long> roleIds) {
+        UserEntity user = userRepository.findByIdAndBusinessId(userId, businessId, UserEntity.class)
+                .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar los registros del usuario"));
+
+        user.getRoles().removeIf(role -> !roleIds.contains(role.getId()));
+
+        List<Long> actualRoleIds = user.getRoles()
+                .stream()
+                .map(RoleEntity::getId)
+                .toList();
+
+        roleIds.removeAll(actualRoleIds);
+
+        List<RoleEntity> rolesToAdd = roleRepository.findAllByIdAndBusinessId(roleIds, businessId);
+
+        if (!roleIds.containsAll(rolesToAdd.stream().map(RoleEntity::getId).toList())) {
+            throw new ValueNotFoundException("No se pudieron encontrar todos los roles");
+        }
+
+        user.getRoles().addAll(rolesToAdd);
+
+        userRepository.save(user);
     }
 
     @Transactional

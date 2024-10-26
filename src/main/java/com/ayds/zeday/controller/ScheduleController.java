@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,7 +47,8 @@ public class ScheduleController {
 
     @GetMapping("/services/{serviceIds}")
     public ResponseEntity<List<ScheduleDto>> getSchedulesByService(
-            @RequestHeader("CompanyId") @Positive long businessId, @PathVariable @NotEmpty List<Long> serviceIds,
+            @RequestHeader("CompanyId") @Positive long businessId,
+            @PathVariable @NotEmpty List<@Positive Long> serviceIds,
             @RequestParam(defaultValue = "#{T(java.time.LocalDate).now()}") LocalDate from,
             @RequestParam(defaultValue = "false") boolean week) {
         List<ScheduleDto> schedules = scheduleService.findAllBusinessSchedulesByService(businessId, from, from,
@@ -84,16 +84,8 @@ public class ScheduleController {
 
     @PutMapping("/{scheduleId}/services/{serviceIds}")
     @ResponseStatus(NO_CONTENT)
-    public void addServicesIntoSchedule(@RequestHeader("CompanyId") @Positive long businessId,
-            @PathVariable @Positive long scheduleId, @PathVariable @Positive List<Long> serviceId) {
-        scheduleService.addServicesToBusinessSchedule(businessId, scheduleId, serviceId);
+    public void toggleServicesIntoSchedule(@RequestHeader("CompanyId") @Positive long businessId,
+            @PathVariable @Positive long scheduleId, @PathVariable @NotEmpty List<@Positive Long> serviceId) {
+        scheduleService.toggleServicesToBusinessSchedule(businessId, scheduleId, serviceId);
     }
-
-    @DeleteMapping("/{scheduleId}/services/{serviceIds}")
-    @ResponseStatus(NO_CONTENT)
-    public void removeServicesFromSchedule(@RequestHeader("CompanyId") @Positive long businessId,
-            @PathVariable @Positive long scheduleId, @PathVariable @Positive List<Long> serviceId) {
-        scheduleService.removeServicesToBusinessSchedule(businessId, scheduleId, serviceId);
-    }
-
 }

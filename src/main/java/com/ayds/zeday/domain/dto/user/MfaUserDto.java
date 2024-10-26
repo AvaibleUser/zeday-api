@@ -8,6 +8,8 @@ public interface MfaUserDto {
 
     Long getId();
 
+    String getName();
+
     String getMfaSecret();
 
     Boolean getActiveMfa();

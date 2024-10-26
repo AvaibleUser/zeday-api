@@ -94,45 +94,28 @@ public class ScheduleService {
     }
 
     @Transactional
-    private void toggleServicesToBusinessSchedule(long businessId, long scheduleId, List<Long> serviceIds,
-            boolean add) {
-        ScheduleEntity scheduleDb = scheduleRepository
+    public void toggleServicesToBusinessSchedule(long businessId, long scheduleId, List<Long> serviceIds) {
+        ScheduleEntity schedule = scheduleRepository
                 .findByIdAndBusinessId(scheduleId, businessId, ScheduleEntity.class)
                 .orElseThrow(() -> new ValueNotFoundException("El horario no se pudo encontrar"));
 
-        List<Long> actualServiceIds = scheduleDb.getServices()
+        schedule.getServices().removeIf(service -> !serviceIds.contains(service.getId()));
+
+        List<Long> actualServiceIds = schedule.getServices()
                 .stream()
                 .map(ServiceEntity::getId)
                 .toList();
 
-        if (add) {
-            serviceIds.removeAll(actualServiceIds);
-        } else {
-            serviceIds.retainAll(actualServiceIds);
-        }
+        serviceIds.removeAll(actualServiceIds);
 
         List<ServiceEntity> servicesToAdd = serviceRepository.findAllById(serviceIds);
 
-        if (serviceIds.containsAll(servicesToAdd.stream().map(ServiceEntity::getId).toList())) {
+        if (!serviceIds.containsAll(servicesToAdd.stream().map(ServiceEntity::getId).toList())) {
             throw new ValueNotFoundException("No se pudieron encontrar todos los servicios");
         }
 
-        if (add) {
-            scheduleDb.getServices().addAll(servicesToAdd);
-        } else {
-            scheduleDb.getServices().removeAll(servicesToAdd);
-        }
+        schedule.getServices().addAll(servicesToAdd);
 
-        scheduleRepository.save(scheduleDb);
-    }
-
-    @Transactional
-    public void addServicesToBusinessSchedule(long businessId, long scheduleId, List<Long> serviceIds) {
-        toggleServicesToBusinessSchedule(businessId, scheduleId, serviceIds, true);
-    }
-
-    @Transactional
-    public void removeServicesToBusinessSchedule(long businessId, long scheduleId, List<Long> serviceIds) {
-        toggleServicesToBusinessSchedule(businessId, scheduleId, serviceIds, false);
+        scheduleRepository.save(schedule);
     }
 }
