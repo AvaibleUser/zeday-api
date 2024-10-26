@@ -6,6 +6,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.security.authentication.UsernamePasswordAuthenticationToken.unauthenticated;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,6 +25,7 @@ import com.ayds.zeday.domain.dto.user.AuthUserDto;
 import com.ayds.zeday.domain.dto.user.ConfirmUserDto;
 import com.ayds.zeday.domain.dto.user.MfaUserDto;
 import com.ayds.zeday.domain.dto.user.RecoverUserDto;
+import com.ayds.zeday.domain.dto.user.UpdatePasswordDto;
 import com.ayds.zeday.domain.dto.user.UserDto;
 import com.ayds.zeday.domain.exception.BadRequestException;
 import com.ayds.zeday.domain.exception.FailedAuthenticateException;
@@ -150,14 +152,17 @@ public class AuthController {
 
     @PutMapping("/recover-password")
     public ResponseEntity<TokenDto> confirmRecoverPassword(@RequestHeader("CompanyId") @Positive long businessId,
-            @RequestBody @Valid ConfirmUserDto user) {
+            @RequestBody @Valid UpdatePasswordDto user) {
         boolean confirmed = authConfirmationService.confirmUserEmailCode(businessId, user.email(), user.code());
 
         if (!confirmed) {
             throw new RequestConflictException("No se logro confirmar el cambio de contraseña");
         }
 
-        return userService.findUserByEmail(businessId, user.email())
+        Optional<UserDto> userDto = userService.findUserByEmail(businessId, user.email());
+        userDto.ifPresent(u -> userService.changeUserPassword(u.getId(), user.password()));
+
+        return userDto
                 .map(this::toTokenDto)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar el registro del usuario"));

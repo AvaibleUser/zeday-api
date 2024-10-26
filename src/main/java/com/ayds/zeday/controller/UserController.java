@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +19,6 @@ import com.ayds.zeday.domain.dto.TokenDto;
 import com.ayds.zeday.domain.dto.business.BusinessDto;
 import com.ayds.zeday.domain.dto.user.MfaSecretDto;
 import com.ayds.zeday.domain.dto.user.MfaUserDto;
-import com.ayds.zeday.domain.dto.user.UpdatePasswordDto;
 import com.ayds.zeday.domain.dto.user.UpdateUserDto;
 import com.ayds.zeday.domain.dto.user.UserDto;
 import com.ayds.zeday.domain.exception.BadRequestException;
@@ -58,14 +56,6 @@ public class UserController {
     @PutMapping
     public ResponseEntity<TokenDto> updateMe(@CurrentUserDto UserDto me, @RequestBody @Valid UpdateUserDto user) {
         userService.changeUserInfo(me.getId(), user);
-
-        return ResponseEntity.ok(toTokenDto(me));
-    }
-
-    @PatchMapping("/password")
-    public ResponseEntity<TokenDto> changePassword(@CurrentUserDto UserDto me,
-            @RequestBody @Valid UpdatePasswordDto user) {
-        userService.changeUserPassword(me.getId(), user.password());
 
         return ResponseEntity.ok(toTokenDto(me));
     }
