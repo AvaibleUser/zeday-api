@@ -11,7 +11,7 @@ import com.ayds.zeday.domain.entity.RoleEntity;
 @Repository
 public interface RoleRepository extends JpaRepository<RoleEntity, Long> {
 
-    List<RoleEntity> findAllByIdAndBusinessId(List<Long> ids, Long businessId);
+    List<RoleEntity> findAllByIdInAndBusinessId(Iterable<Long> ids, Long businessId);
 
     Optional<RoleEntity> findByName(String name);
 }

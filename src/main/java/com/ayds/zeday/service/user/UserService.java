@@ -98,7 +98,7 @@ public class UserService implements UserDetailsService {
 
         roleIds.removeAll(actualRoleIds);
 
-        List<RoleEntity> rolesToAdd = roleRepository.findAllByIdAndBusinessId(roleIds, businessId);
+        List<RoleEntity> rolesToAdd = roleRepository.findAllByIdInAndBusinessId(roleIds, businessId);
 
         if (!roleIds.containsAll(rolesToAdd.stream().map(RoleEntity::getId).toList())) {
             throw new ValueNotFoundException("No se pudieron encontrar todos los roles");
