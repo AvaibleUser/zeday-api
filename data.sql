@@ -1,5 +1,5 @@
-INSERT INTO business (name, auto_assignment)
-VALUES ('company-test', FALSE);
+INSERT INTO business (name, auto_assignment, logo_url)
+VALUES ('company-test', FALSE, 'https://cdn.pixabay.com/photo/2016/09/14/20/50/tooth-1670434_1280.png');
 
 INSERT INTO role (name, description, multiuser)
 VALUES ('ADMIN', 'Rol de administrador', TRUE);
