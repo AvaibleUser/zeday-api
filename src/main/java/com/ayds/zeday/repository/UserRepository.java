@@ -25,13 +25,19 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     @Query("""
             SELECT user, COUNT(aa) AS assigned FROM user u
                 INNER JOIN u.assignedAppointments aa
-                WHERE u.business.id = :businessId AND CAST(aa.state AS java.lang.String) = 'SCHEDULED' AND
+                INNER JOIN u.roles r
+                INNER JOIN r.permissions p
+                INNER JOIN p.schedule s
+                INNER JOIN s.services se
+                WHERE s.id = :scheduleId AND se.id = :serviceId AND u.business.id = :businessId AND
+                    CAST(aa.state AS java.lang.String) = 'SCHEDULED' AND
                     (:from NOT BETWEEN aa.startAt AND aa.endAt OR :to NOT BETWEEN aa.startAt AND aa.endAt)
                 GROUP By u
                 ORDER BY assigned ASC
             """)
-    <U> List<U> findAllByBusinessIdAndWithoutScheduledAppointmentBetweenDates(@Param("businessId") Long businessId,
-            @Param("from") Instant from, @Param("to") Instant to);
+    <U> List<U> findAllByPossibleAttendantBetweenDates(@Param("businessId") Long businessId,
+            @Param("scheduleId") Long scheduleId, @Param("scheduleId") Long serviceId, @Param("from") Instant from,
+            @Param("to") Instant to, Class<U> type);
 
     @Query("""
             SELECT COUNT(user) > 0 FROM user u

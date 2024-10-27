@@ -4,6 +4,7 @@ import static jakarta.persistence.EnumType.STRING;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.time.Instant;
+import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -16,6 +17,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -26,6 +28,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.Singular;
 
 @Entity(name = "permission")
 @Table(name = "permission", uniqueConstraints = {
@@ -53,6 +56,10 @@ public class PermissionEntity {
 
     @OneToOne(mappedBy = "permission")
     private ScheduleEntity schedule;
+
+    @Singular
+    @ManyToMany(mappedBy = "permissions")
+    private Set<RoleEntity> roles;
 
     @CreationTimestamp
     @Column

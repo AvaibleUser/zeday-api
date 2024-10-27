@@ -10,10 +10,12 @@ import com.ayds.zeday.domain.dto.role.AddRoleDto;
 import com.ayds.zeday.domain.dto.role.RoleDto;
 import com.ayds.zeday.domain.dto.role.UpdateRoleDto;
 import com.ayds.zeday.domain.entity.BusinessEntity;
+import com.ayds.zeday.domain.entity.PermissionEntity;
 import com.ayds.zeday.domain.entity.RoleEntity;
 import com.ayds.zeday.domain.exception.RequestConflictException;
 import com.ayds.zeday.domain.exception.ValueNotFoundException;
 import com.ayds.zeday.repository.BusinessRepository;
+import com.ayds.zeday.repository.PermissionRepository;
 import com.ayds.zeday.repository.RoleRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class RoleService {
 
     private final RoleRepository roleRepository;
+    private final PermissionRepository permissionRepository;
     private final BusinessRepository businessRepository;
 
     public List<RoleDto> findAllRolesForBusiness(long businessId) {
@@ -61,5 +64,30 @@ public class RoleService {
         role.multiuser().ifPresent(dbRole::setMultiuser);
 
         roleRepository.save(dbRole);
+    }
+
+    public void toggleBusinessRolePermissions(long businessId, long roleId, List<Long> permissionIds) {
+        RoleEntity role = roleRepository.findByIdAndBusinessId(roleId, businessId, RoleEntity.class)
+                .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar el rol"));
+
+        role.getPermissions().removeIf(permission -> !permissionIds.contains(permission.getId()));
+
+        List<Long> actualPermissionIds = role.getPermissions()
+                .stream()
+                .map(PermissionEntity::getId)
+                .toList();
+
+        permissionIds.removeAll(actualPermissionIds);
+
+        List<PermissionEntity> permissionsToAdd = permissionRepository.findAllByIdInAndBusinessId(permissionIds,
+                businessId);
+
+        if (!permissionIds.containsAll(permissionsToAdd.stream().map(PermissionEntity::getId).toList())) {
+            throw new ValueNotFoundException("No se pudieron encontrar todos los roles");
+        }
+
+        role.getPermissions().addAll(permissionsToAdd);
+
+        roleRepository.save(role);
     }
 }

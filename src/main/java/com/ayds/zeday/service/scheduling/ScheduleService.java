@@ -1,5 +1,6 @@
 package com.ayds.zeday.service.scheduling;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
@@ -12,6 +13,7 @@ import com.ayds.zeday.domain.dto.schedule.AddScheduleDto;
 import com.ayds.zeday.domain.dto.schedule.GeneralScheduleDto;
 import com.ayds.zeday.domain.dto.schedule.ScheduleDto;
 import com.ayds.zeday.domain.dto.schedule.UpdateScheduleDto;
+import com.ayds.zeday.domain.dto.user.UserDto;
 import com.ayds.zeday.domain.entity.BusinessEntity;
 import com.ayds.zeday.domain.entity.PermissionEntity;
 import com.ayds.zeday.domain.entity.RoleEntity;
@@ -23,6 +25,7 @@ import com.ayds.zeday.domain.exception.ValueNotFoundException;
 import com.ayds.zeday.repository.BusinessRepository;
 import com.ayds.zeday.repository.ScheduleRepository;
 import com.ayds.zeday.repository.ServiceRepository;
+import com.ayds.zeday.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,6 +36,7 @@ public class ScheduleService {
     private final BusinessRepository businessRepository;
     private final ScheduleRepository scheduleRepository;
     private final ServiceRepository serviceRepository;
+    private final UserRepository userRepository;
 
     public List<GeneralScheduleDto> findAllBusinessSchedules(long businessId) {
         return scheduleRepository.findAllByBusinessId(businessId, GeneralScheduleDto.class);
@@ -48,6 +52,17 @@ public class ScheduleService {
             LocalDate to) {
         return scheduleRepository.findByIdAndBusinessIdAndBetweenDates(scheduleId, businessId, from, to,
                 ScheduleDto.class);
+    }
+
+    public List<UserDto> findPossibleAttendantInBusinessSchedule(long businessId, long scheduleId, long serviceId,
+            Instant from, Instant to) {
+        BusinessEntity business = businessRepository.findById(businessId)
+                .orElseThrow(() -> new ValueNotFoundException("No se encontro la empresa"));
+
+        List<UserDto> attendants = userRepository.findAllByPossibleAttendantBetweenDates(businessId, scheduleId,
+                serviceId, from, to, UserDto.class);
+
+        return business.getAutoAssignment() ? attendants.subList(0, 1) : attendants;
     }
 
     @Transactional

@@ -3,6 +3,7 @@ package com.ayds.zeday.controller;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +24,7 @@ import com.ayds.zeday.domain.dto.schedule.AddScheduleDto;
 import com.ayds.zeday.domain.dto.schedule.GeneralScheduleDto;
 import com.ayds.zeday.domain.dto.schedule.ScheduleDto;
 import com.ayds.zeday.domain.dto.schedule.UpdateScheduleDto;
+import com.ayds.zeday.domain.dto.user.UserDto;
 import com.ayds.zeday.service.scheduling.ScheduleService;
 
 import jakarta.validation.Valid;
@@ -66,6 +68,18 @@ public class ScheduleController {
         Optional<ScheduleDto> schedule = scheduleService.findBusinessSchedule(businessId, scheduleId, from, to);
 
         return ResponseEntity.of(schedule);
+    }
+
+    @GetMapping("/{scheduleId}/services/{serviceId}/attendants")
+    public ResponseEntity<List<UserDto>> getPossibleAttendants(@RequestHeader("CompanyId") @Positive long businessId,
+            @PathVariable @Positive long scheduleId,
+            @PathVariable @Positive long serviceId,
+            @RequestParam(required = true) Instant from,
+            @RequestParam(required = true) Instant to) {
+        List<UserDto> schedule = scheduleService.findPossibleAttendantInBusinessSchedule(businessId, scheduleId,
+                serviceId, from, to);
+
+        return ResponseEntity.ok(schedule);
     }
 
     @PostMapping
