@@ -79,7 +79,7 @@ public class RoleService {
 
         permissionIds.removeAll(actualPermissionIds);
 
-        List<PermissionEntity> permissionsToAdd = permissionRepository.findAllByIdInAndBusinessId(permissionIds,
+        List<PermissionEntity> permissionsToAdd = permissionRepository.findAllByIdInAndScheduleBusinessId(permissionIds,
                 businessId);
 
         if (!permissionIds.containsAll(permissionsToAdd.stream().map(PermissionEntity::getId).toList())) {

@@ -10,6 +10,6 @@ import com.ayds.zeday.domain.entity.PermissionEntity;
 @Repository
 public interface PermissionRepository extends JpaRepository<PermissionEntity, Long> {
 
-    List<PermissionEntity> findAllByIdInAndBusinessId(Iterable<Long> ids, Long businessId);
+    List<PermissionEntity> findAllByIdInAndScheduleBusinessId(Iterable<Long> ids, Long businessId);
 
 }
