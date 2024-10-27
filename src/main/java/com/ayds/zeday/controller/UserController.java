@@ -3,11 +3,13 @@ package com.ayds.zeday.controller;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -31,6 +33,7 @@ import com.ayds.zeday.service.user.UserService;
 import com.ayds.zeday.service.util.TokenService;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -55,11 +58,26 @@ public class UserController {
         return ResponseEntity.ok(me);
     }
 
+    @GetMapping("/{email}")
+    public ResponseEntity<UserDto> getUser(@RequestHeader("CompanyId") @Positive long businessId,
+            @PathVariable @NotBlank String email) {
+        Optional<UserDto> user = userService.findUserByEmail(businessId, email);
+
+        return ResponseEntity.of(user);
+    }
+
     @PutMapping
     public ResponseEntity<TokenDto> updateMe(@CurrentUserDto UserDto me, @RequestBody @Valid UpdateUserDto user) {
         userService.changeUserInfo(me.getId(), user);
 
         return ResponseEntity.ok(toTokenDto(me));
+    }
+
+    @PostMapping("/{userId}/roles/{roleIds}")
+    @ResponseStatus(NO_CONTENT)
+    public void addRolesToUser(@RequestHeader("CompanyId") @Positive long businessId,
+            @PathVariable @Positive long userId, @PathVariable @Positive long roleId) {
+        userService.addUserRole(businessId, userId, roleId);
     }
 
     @PutMapping("/{userId}/roles/{roleIds}")

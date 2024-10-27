@@ -95,6 +95,20 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
+    public void addUserRole(long businessId, long userId, long roleId) {
+        UserEntity user = userRepository.findByIdAndBusinessId(userId, businessId, UserEntity.class)
+                .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar los registros del usuario"));
+
+        RoleEntity roleToAdd = roleRepository.findByIdAndBusinessId(roleId, businessId, RoleEntity.class)
+                .or(() -> roleRepository.findByIdAndBusinessId(roleId, null, RoleEntity.class))
+                .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar el rol"));
+
+        user.getRoles().add(roleToAdd);
+
+        userRepository.save(user);
+    }
+
+    @Transactional
     public void toggleUserRoles(long businessId, long userId, List<Long> roleIds) {
         UserEntity user = userRepository.findByIdAndBusinessId(userId, businessId, UserEntity.class)
                 .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar los registros del usuario"));
@@ -109,6 +123,7 @@ public class UserService implements UserDetailsService {
         roleIds.removeAll(actualRoleIds);
 
         List<RoleEntity> rolesToAdd = roleRepository.findAllByIdInAndBusinessId(roleIds, businessId);
+        rolesToAdd.addAll(roleRepository.findAllByIdInAndBusinessId(roleIds, null));
 
         if (!roleIds.containsAll(rolesToAdd.stream().map(RoleEntity::getId).toList())) {
             throw new ValueNotFoundException("No se pudieron encontrar todos los roles");

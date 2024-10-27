@@ -61,7 +61,7 @@ public class BusinessServiceTest {
     }
 
     @Test
-    public void canAddBusiness(BusinessEntity expectedBusiness) {
+    public void canAddBusiness(long userId, BusinessEntity expectedBusiness) {
         long expectedBusinessId = expectedBusiness.getId();
         AddBusinessDto businessDto = AddBusinessDto.builder()
                 .name(expectedBusiness.getName())
@@ -77,7 +77,7 @@ public class BusinessServiceTest {
         given(businessRepository.saveAndFlush(business))
                 .willReturn(expectedBusiness.toBuilder().build());
 
-        long actualBusinessId = businessService.addBusiness(businessDto);
+        long actualBusinessId = businessService.addBusiness(userId, businessDto);
 
         then(actualBusinessId)
                 .usingRecursiveComparison()
@@ -85,10 +85,10 @@ public class BusinessServiceTest {
     }
 
     @Test
-    public void canBlockAddBusinessWithDuplicateName(AddBusinessDto businessDto, String mfaSecret) {
+    public void canBlockAddBusinessWithDuplicateName(long userId, AddBusinessDto businessDto, String mfaSecret) {
         given(businessRepository.existsByName(businessDto.name())).willReturn(true);
 
-        assertThrows(RequestConflictException.class, () -> businessService.addBusiness(businessDto));
+        assertThrows(RequestConflictException.class, () -> businessService.addBusiness(userId, businessDto));
     }
 
     @Test

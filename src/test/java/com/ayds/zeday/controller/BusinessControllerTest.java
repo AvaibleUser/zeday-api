@@ -88,10 +88,10 @@ public class BusinessControllerTest {
     }
 
     @Test
-    public void canCreateBusiness(long businessId, AddBusinessDto business) {
+    public void canCreateBusiness(long userId, long businessId, AddBusinessDto business) {
         BusinessIdDto expectedBusiness = new BusinessIdDto(businessId);
 
-        given(businessService.addBusiness(business.toBuilder().build()))
+        given(businessService.addBusiness(userId, business.toBuilder().build()))
                 .willReturn(businessId);
 
         ResponseEntity<BusinessIdDto> actualBusiness = businessController.createBusiness(business);
