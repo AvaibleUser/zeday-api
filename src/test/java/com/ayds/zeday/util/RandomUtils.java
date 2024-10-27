@@ -23,6 +23,10 @@ public class RandomUtils {
         return generator.nextLong(Long.MAX_VALUE) + 1;
     }
 
+    public double nextPositiveDouble() {
+        return generator.nextDouble(Long.MAX_VALUE) + 1;
+    }
+
     public boolean nextBoolean() {
         return generator.nextBoolean();
     }

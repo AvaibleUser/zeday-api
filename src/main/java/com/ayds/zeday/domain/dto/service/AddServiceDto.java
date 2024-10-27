@@ -14,6 +14,7 @@ public record AddServiceDto(
         @NotBlank String name,
         @NotBlank String description,
         @NotNull @Positive Duration duration,
+        @NotNull @Positive Double price,
         Optional<Boolean> cancellable,
         Optional<@PositiveOrZero Integer> maxDaysToCancel,
         Optional<@PositiveOrZero Integer> minDaysToSchedule,

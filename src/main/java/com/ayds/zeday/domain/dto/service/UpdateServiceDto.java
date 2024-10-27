@@ -11,6 +11,7 @@ import lombok.Builder;
 public record UpdateServiceDto(
         Optional<String> description,
         Optional<@Positive Duration> duration,
+        Optional<@Positive Double> price,
         Optional<Boolean> cancellable,
         Optional<@PositiveOrZero Integer> maxDaysToCancel,
         Optional<@PositiveOrZero Integer> minDaysToSchedule,

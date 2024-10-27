@@ -47,6 +47,7 @@ public class ServiceService {
                 .name(service.name())
                 .description(service.description())
                 .duration(service.duration())
+                .price(service.price())
                 .cancellable(service.cancellable().orElse(false))
                 .maxDaysToCancel(service.maxDaysToCancel().orElse(Integer.MAX_VALUE))
                 .minDaysToSchedule(service.minDaysToSchedule().orElse(Integer.MAX_VALUE))

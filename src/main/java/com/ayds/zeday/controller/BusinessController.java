@@ -19,11 +19,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ayds.zeday.config.annotation.CurrentUserDto;
 import com.ayds.zeday.domain.dto.business.AddBusinessDto;
 import com.ayds.zeday.domain.dto.business.BusinessDto;
 import com.ayds.zeday.domain.dto.business.BusinessIdDto;
 import com.ayds.zeday.domain.dto.business.BusinessLogoDto;
 import com.ayds.zeday.domain.dto.business.UpdateBusinessDto;
+import com.ayds.zeday.domain.dto.user.UserDto;
 import com.ayds.zeday.domain.exception.ValueNotFoundException;
 import com.ayds.zeday.service.business.BusinessService;
 import com.ayds.zeday.service.util.FileStorageService;
@@ -48,8 +50,9 @@ public class BusinessController {
     }
 
     @PostMapping
-    public ResponseEntity<BusinessIdDto> createBusiness(@RequestBody @Valid AddBusinessDto business) {
-        long newBusinessId = businessService.addBusiness(business);
+    public ResponseEntity<BusinessIdDto> createBusiness(@CurrentUserDto UserDto user,
+            @RequestBody @Valid AddBusinessDto business) {
+        long newBusinessId = businessService.addBusiness(user.getId(), business);
 
         return new ResponseEntity<>(new BusinessIdDto(newBusinessId), CREATED);
     }

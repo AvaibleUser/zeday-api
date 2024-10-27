@@ -11,9 +11,11 @@ import com.ayds.zeday.domain.dto.business.AddBusinessDto;
 import com.ayds.zeday.domain.dto.business.BusinessDto;
 import com.ayds.zeday.domain.dto.business.UpdateBusinessDto;
 import com.ayds.zeday.domain.entity.BusinessEntity;
+import com.ayds.zeday.domain.entity.UserEntity;
 import com.ayds.zeday.domain.exception.RequestConflictException;
 import com.ayds.zeday.domain.exception.ValueNotFoundException;
 import com.ayds.zeday.repository.BusinessRepository;
+import com.ayds.zeday.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BusinessService {
 
+    private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
     private final ConcurrentMap<Long, ConcurrentMap<String, String>> emailConfirmationCodes;
 
@@ -34,7 +37,7 @@ public class BusinessService {
     }
 
     @Transactional
-    public long addBusiness(AddBusinessDto business) {
+    public long addBusiness(long userId, AddBusinessDto business) {
         if (businessRepository.existsByName(business.name())) {
             throw new RequestConflictException("El nombre de la compañia ya existe");
         }
@@ -45,6 +48,13 @@ public class BusinessService {
 
         newBusiness = businessRepository.saveAndFlush(newBusiness);
         emailConfirmationCodes.put(newBusiness.getId(), new ConcurrentHashMap<>());
+
+        UserEntity user = userRepository.findByIdAndBusinessId(userId, 1L, UserEntity.class)
+                .orElseThrow(() -> new ValueNotFoundException("El usuario no se pudo encontrar"));
+
+        user.setBusiness(newBusiness);
+
+        userRepository.save(user);
 
         return newBusiness.getId();
     }

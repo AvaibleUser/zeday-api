@@ -32,7 +32,7 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh './gradlew clean nativeCompile'
+                sh './gradlew clean package'
             }
         }
         stage('Deploy') {
@@ -40,7 +40,19 @@ pipeline {
                 branch "trunk"
             }
             steps {
-                sh './build/native/nativeCompile/ZeroDay'
+                script {
+                    def jarFiles = sh(script: 'ls /build/libs/*.jar', returnStdout: true).trim().split('\n')
+
+                    def jarToDeploy = jarFiles.find { jar -> 
+                        jar.endsWith('.jar') && !jar.endsWith('-plain.jar')
+                    }
+
+                    if (jarToDeploy) {
+                        sh "java -jar ${jarToDeploy}"
+                    } else {
+                        error("No suitable JAR file found for deployment.")
+                    }
+                }
             }
         }
     }

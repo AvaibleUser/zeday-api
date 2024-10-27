@@ -94,6 +94,7 @@ public class ServiceServiceTest {
                 .name(expectedService.getName())
                 .description(expectedService.getDescription())
                 .duration(expectedService.getDuration())
+                .price(expectedService.getPrice())
                 .cancellable(Optional.of(expectedService.getCancellable()))
                 .maxDaysToCancel(Optional.of(expectedService.getMaxDaysToCancel()))
                 .minDaysToSchedule(Optional.of(expectedService.getMinDaysToSchedule()))
@@ -133,13 +134,14 @@ public class ServiceServiceTest {
         assertThrows(RequestConflictException.class, () -> serviceService.addService(businessId, service));
     }
 
-    private void canUpdateService(boolean updateDescription, boolean updateDuration, boolean updateCancellable,
-            boolean updateMaxDaysToCancel, boolean updateMinDaysToSchedule, boolean updateMaxDaysToSchedule,
-            boolean updateAdvancePaymentPercentage) {
+    private void canUpdateService(boolean updateDescription, boolean updateDuration, boolean updatePrice,
+            boolean updateCancellable, boolean updateMaxDaysToCancel, boolean updateMinDaysToSchedule,
+            boolean updateMaxDaysToSchedule, boolean updateAdvancePaymentPercentage) {
         long businessId = random.nextPositiveLong();
         long serviceId = random.nextPositiveLong();
         String description = random.nextString();
         Duration duration = random.nextDuration();
+        Double price = random.nextPositiveDouble();
         boolean cancellable = random.nextBoolean();
         int maxDaysToCancel = random.nextPositiveInt();
         int minDaysToSchedule = random.nextPositiveInt();
@@ -157,6 +159,7 @@ public class ServiceServiceTest {
                 .name(random.nextString())
                 .description(description)
                 .duration(duration)
+                .price(price)
                 .cancellable(cancellable)
                 .maxDaysToCancel(maxDaysToCancel)
                 .minDaysToSchedule(minDaysToSchedule)
@@ -168,6 +171,7 @@ public class ServiceServiceTest {
         UpdateServiceDto service = UpdateServiceDto.builder()
                 .description(Optional.ofNullable(updateDescription ? description : null))
                 .duration(Optional.ofNullable(updateDuration ? duration : null))
+                .price(Optional.ofNullable(updatePrice ? price : null))
                 .cancellable(Optional.ofNullable(updateCancellable ? cancellable : null))
                 .maxDaysToCancel(Optional.ofNullable(updateMaxDaysToCancel ? maxDaysToCancel : null))
                 .minDaysToSchedule(Optional.ofNullable(updateMinDaysToSchedule ? minDaysToSchedule : null))
@@ -195,47 +199,52 @@ public class ServiceServiceTest {
 
     @Test
     public void canCompletlyUpdateService() {
-        canUpdateService(true, true, true, true, true, true, true);
+        canUpdateService(true, true, true, true, true, true, true, true);
     }
 
     @Test
     public void canUpdateServiceDescription() {
-        canUpdateService(true, false, false, false, false, false, false);
+        canUpdateService(true, false, false, false, false, false, false, false);
     }
 
     @Test
     public void canUpdateServiceDuration() {
-        canUpdateService(false, true, false, false, false, false, false);
+        canUpdateService(false, true, false, false, false, false, false, false);
+    }
+
+    @Test
+    public void canUpdateServicePrice() {
+        canUpdateService(false, false, true, false, false, false, false, false);
     }
 
     @Test
     public void canUpdateServiceCancellable() {
-        canUpdateService(false, false, true, false, false, false, false);
+        canUpdateService(false, false, false, true, false, false, false, false);
     }
 
     @Test
     public void canUpdateServiceMaxDaysToCancel() {
-        canUpdateService(false, false, false, true, false, false, false);
+        canUpdateService(false, false, false, false, true, false, false, false);
     }
 
     @Test
     public void canUpdateServiceMinDaysToSchedule() {
-        canUpdateService(false, false, false, false, true, false, false);
+        canUpdateService(false, false, false, false, false, true, false, false);
     }
 
     @Test
     public void canUpdateServiceMaxDaysToSchedule() {
-        canUpdateService(false, false, false, false, false, true, false);
+        canUpdateService(false, false, false, false, false, false, true, false);
     }
 
     @Test
     public void canUpdateServiceAdvancePaymentPercentage() {
-        canUpdateService(false, false, false, false, false, false, true);
+        canUpdateService(false, false, false, false, false, false, false, true);
     }
 
     @Test
     public void canUpdateServiceStillWithoutChanges() {
-        canUpdateService(false, false, false, false, false, false, false);
+        canUpdateService(false, false, false, false, false, false, false, false);
     }
 
     @Test

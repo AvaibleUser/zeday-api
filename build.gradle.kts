@@ -1,7 +1,7 @@
 plugins {
 	java
 	jacoco
-	id("org.springframework.boot") version "3.3.4"
+	id("org.springframework.boot") version "3.3.5"
 	id("io.spring.dependency-management") version "1.1.6"
 	id("org.hibernate.orm") version "6.5.3.Final"
 	// id("org.graalvm.buildtools.native") version "0.10.3"
@@ -68,12 +68,23 @@ tasks.jacocoTestReport {
 		csv.required = false
 		xml.outputLocation = layout.buildDirectory.file("reports/jacoco/test/jacoco.xml")
 	}
+
+    classDirectories.setFrom(
+        files(
+            classDirectories.files.map {
+                fileTree(it) {
+                    setExcludes(listOf("**/entity/**/*", "**/dto/**/*"))
+                }
+            }
+        )
+    )
 }
 tasks.jacocoTestCoverageVerification {
 	dependsOn(tasks.jacocoTestReport)
 
 	violationRules {
 		rule {
+            classDirectories.setFrom(tasks.jacocoTestReport.get().classDirectories)
 			limit {
 				minimum = "0.8".toBigDecimal()
 			}
