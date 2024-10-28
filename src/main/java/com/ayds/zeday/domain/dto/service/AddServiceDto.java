@@ -13,7 +13,7 @@ import lombok.Builder;
 public record AddServiceDto(
         @NotBlank String name,
         @NotBlank String description,
-        @NotNull @Positive Duration duration,
+        @NotNull Duration duration,
         @NotNull @Positive Double price,
         Optional<Boolean> cancellable,
         Optional<@PositiveOrZero Integer> maxDaysToCancel,
