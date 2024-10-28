@@ -1,5 +1,6 @@
 package com.ayds.zeday.util.paramresolver;
 
+import static java.util.stream.Collectors.toList;
 import static org.mockito.Mockito.mock;
 
 import java.lang.reflect.Parameter;
@@ -48,7 +49,7 @@ public class ServiceParamsResolver extends RandomParamsResolver {
             if (genericType instanceof ParameterizedType genType) {
                 Type genClass = Arrays.stream(genType.getActualTypeArguments()).findFirst().get();
                 if (genClass == ServiceDto.class) {
-                    return random.nextObjects(this::getServiceDto);
+                    return random.nextObjects(this::getServiceDto, toList());
                 }
             }
         }
@@ -61,6 +62,7 @@ public class ServiceParamsResolver extends RandomParamsResolver {
                 .name(random.nextString())
                 .description(random.nextString())
                 .duration(random.nextDuration())
+                .price(random.nextPositiveDouble())
                 .cancellable(random.nextBoolean())
                 .maxDaysToCancel(random.nextPositiveInt())
                 .minDaysToSchedule(random.nextPositiveInt())

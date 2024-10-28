@@ -1,7 +1,6 @@
 package com.ayds.zeday.domain.dto.schedule;
 
 import java.time.Instant;
-import java.util.Optional;
 import java.util.Set;
 
 import com.ayds.zeday.domain.dto.appointment.AppointmentDto;
@@ -14,7 +13,7 @@ import lombok.Builder;
 public record ScheduleDto(
         Long id,
         String title,
-        Optional<String> notes,
+        String notes,
         Set<AvailabilityDto> availabilities,
         Set<AppointmentDto> appointments,
         Set<ServiceDto> services,

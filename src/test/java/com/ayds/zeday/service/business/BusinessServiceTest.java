@@ -2,11 +2,14 @@ package com.ayds.zeday.service.business;
 
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,9 +22,11 @@ import com.ayds.zeday.domain.dto.business.AddBusinessDto;
 import com.ayds.zeday.domain.dto.business.BusinessDto;
 import com.ayds.zeday.domain.dto.business.UpdateBusinessDto;
 import com.ayds.zeday.domain.entity.BusinessEntity;
+import com.ayds.zeday.domain.entity.UserEntity;
 import com.ayds.zeday.domain.exception.RequestConflictException;
 import com.ayds.zeday.domain.exception.ValueNotFoundException;
 import com.ayds.zeday.repository.BusinessRepository;
+import com.ayds.zeday.repository.UserRepository;
 import com.ayds.zeday.util.annotation.ZedayTest;
 import com.ayds.zeday.util.paramresolver.BusinessParamsResolver;
 import com.ayds.zeday.util.paramresolver.UserParamsResolver;
@@ -34,7 +39,13 @@ public class BusinessServiceTest {
     private ArgumentCaptor<BusinessEntity> businessCaptor;
 
     @MockBean
+    private UserRepository userRepository;
+
+    @MockBean
     private BusinessRepository businessRepository;
+
+    @MockBean
+    private ConcurrentMap<Long, ConcurrentMap<String, String>> emailConfirmationCodes;
 
     @Autowired
     private BusinessService businessService;
@@ -61,8 +72,9 @@ public class BusinessServiceTest {
     }
 
     @Test
-    public void canAddBusiness(long userId, BusinessEntity expectedBusiness) {
+    public void canAddBusiness(BusinessEntity expectedBusiness, UserEntity expectedUser) {
         long expectedBusinessId = expectedBusiness.getId();
+        long expectedUserId = expectedUser.getId();
         AddBusinessDto businessDto = AddBusinessDto.builder()
                 .name(expectedBusiness.getName())
                 .autoAssignment(Optional.ofNullable(expectedBusiness.getAutoAssignment()))
@@ -73,12 +85,17 @@ public class BusinessServiceTest {
                 .logoUrl(null)
                 .build();
 
+        given(emailConfirmationCodes.put(isA(Long.class), any())).willReturn(null);
         given(businessRepository.existsByName(businessDto.name())).willReturn(false);
         given(businessRepository.saveAndFlush(business))
                 .willReturn(expectedBusiness.toBuilder().build());
+        given(userRepository.findByIdAndBusinessId(isA(Long.class), isA(Long.class), any()))
+                .willAnswer(invocation -> Optional.of(expectedUser.toBuilder().build()));
 
-        long actualBusinessId = businessService.addBusiness(userId, businessDto);
+        long actualBusinessId = businessService.addBusiness(expectedUserId, businessDto);
 
+        verify(userRepository).findByIdAndBusinessId(expectedUserId, 1L, UserEntity.class);
+        verify(emailConfirmationCodes).put(expectedBusinessId, new ConcurrentHashMap<>());
         then(actualBusinessId)
                 .usingRecursiveComparison()
                 .isEqualTo(expectedBusinessId);

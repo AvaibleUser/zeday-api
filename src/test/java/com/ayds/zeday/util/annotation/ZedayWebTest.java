@@ -9,7 +9,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.ayds.zeday.util.paramresolver.PrimitivesParamsResolver;
@@ -18,9 +17,8 @@ import com.ayds.zeday.util.paramresolver.PrimitivesParamsResolver;
 @Target(TYPE)
 @Documented
 @Inherited
-@SpringBootTest
 @ActiveProfiles("test")
 @ExtendWith(PrimitivesParamsResolver.class)
-public @interface ZedayTest {
+public @interface ZedayWebTest {
 
 }

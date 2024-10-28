@@ -1,5 +1,7 @@
 package com.ayds.zeday.util.paramresolver;
 
+import static java.util.stream.Collectors.toList;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import java.lang.reflect.Parameter;
@@ -10,15 +12,17 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 
+import com.ayds.zeday.domain.dto.role.GeneralRoleDto;
 import com.ayds.zeday.domain.dto.user.AddUserDto;
 import com.ayds.zeday.domain.dto.user.UpdateUserDto;
+import com.ayds.zeday.domain.dto.user.UserDto;
 import com.ayds.zeday.domain.entity.BusinessEntity;
 import com.ayds.zeday.domain.entity.UserEntity;
 
 public class UserParamsResolver extends RandomParamsResolver {
 
     public UserParamsResolver() {
-        super(List.of(AddUserDto.class, UpdateUserDto.class, UserEntity.class));
+        super(List.of(UserDto.class, AddUserDto.class, UpdateUserDto.class, UserEntity.class));
     }
 
     @Override
@@ -26,6 +30,9 @@ public class UserParamsResolver extends RandomParamsResolver {
             throws ParameterResolutionException {
         Parameter parameter = parameterContext.getParameter();
         Class<?> type = parameter.getType();
+        if (type == UserDto.class) {
+            return getUserDto();
+        }
         if (type == AddUserDto.class) {
             return getAddUserDto();
         }
@@ -36,6 +43,25 @@ public class UserParamsResolver extends RandomParamsResolver {
             return getUserEntity();
         }
         return null;
+    }
+
+    private UserDto getUserDto() {
+        UserDto user = mock(UserDto.class);
+
+        given(user.getId()).willReturn(random.nextPositiveLong());
+        given(user.getName()).willReturn(random.nextString());
+        given(user.getLastname()).willReturn(random.nextString());
+        given(user.getEmail()).willReturn(random.nextString());
+        given(user.getNit()).willReturn(random.nextString());
+        given(user.getCui()).willReturn(random.nextString());
+        given(user.getPhone()).willReturn(random.nextString());
+        given(user.getActiveMfa()).willReturn(random.nextBoolean());
+        given(user.getCreatedAt()).willReturn(random.nextInstant());
+        given(user.getUpdatedAt()).willReturn(random.nextInstant());
+        given(user.getPermissions()).willReturn(random.nextStrings());
+        given(user.getRoles()).willReturn(random.nextMocks(GeneralRoleDto.class, toList()));
+
+        return user;
     }
 
     private AddUserDto getAddUserDto() {

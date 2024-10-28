@@ -29,15 +29,17 @@ import com.ayds.zeday.domain.dto.business.BusinessDto;
 import com.ayds.zeday.domain.dto.business.BusinessIdDto;
 import com.ayds.zeday.domain.dto.business.BusinessLogoDto;
 import com.ayds.zeday.domain.dto.business.UpdateBusinessDto;
+import com.ayds.zeday.domain.dto.user.UserDto;
 import com.ayds.zeday.domain.exception.ValueNotFoundException;
 import com.ayds.zeday.service.business.BusinessService;
 import com.ayds.zeday.service.util.FileStorageService;
 import com.ayds.zeday.util.RandomUtils;
 import com.ayds.zeday.util.annotation.ZedayTest;
 import com.ayds.zeday.util.paramresolver.BusinessParamsResolver;
+import com.ayds.zeday.util.paramresolver.UserParamsResolver;
 
 @ZedayTest
-@ExtendWith(BusinessParamsResolver.class)
+@ExtendWith({ BusinessParamsResolver.class, UserParamsResolver.class })
 public class BusinessControllerTest {
 
     private static final RandomUtils random = new RandomUtils();
@@ -88,13 +90,13 @@ public class BusinessControllerTest {
     }
 
     @Test
-    public void canCreateBusiness(long userId, long businessId, AddBusinessDto business) {
+    public void canCreateBusiness(long businessId, AddBusinessDto business, UserDto user) {
         BusinessIdDto expectedBusiness = new BusinessIdDto(businessId);
 
-        given(businessService.addBusiness(userId, business.toBuilder().build()))
+        given(businessService.addBusiness(user.getId(), business.toBuilder().build()))
                 .willReturn(businessId);
 
-        ResponseEntity<BusinessIdDto> actualBusiness = businessController.createBusiness(business);
+        ResponseEntity<BusinessIdDto> actualBusiness = businessController.createBusiness(user, business);
 
         then(actualBusiness)
                 .extracting(ResponseEntity::getBody)

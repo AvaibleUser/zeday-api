@@ -58,7 +58,6 @@ hibernate {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
-	systemProperty("spring.profiles.active", "test")
 }
 tasks.jacocoTestReport {
 	dependsOn(tasks.test)

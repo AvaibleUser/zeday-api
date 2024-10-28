@@ -12,6 +12,7 @@ public record ServiceDto(
         String description,
         Duration duration,
         Boolean cancellable,
+        Double price,
         Integer maxDaysToCancel,
         Integer minDaysToSchedule,
         Integer maxDaysToSchedule,

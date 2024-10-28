@@ -1,11 +1,15 @@
 package com.ayds.zeday.util;
 
+import static org.mockito.Mockito.mock;
+
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.random.RandomGenerator;
+import java.util.stream.Collector;
 import java.util.stream.IntStream;
 
 import org.springframework.stereotype.Component;
@@ -49,9 +53,15 @@ public class RandomUtils {
                 .toList();
     }
 
-    public <T> List<T> nextObjects(Supplier<T> supplier) {
-        return IntStream.range(0, generator.nextInt(5, 100))
+    public <T, C extends Collection<T>> C nextObjects(Supplier<T> supplier, Collector<T, ?, C> collector) {
+        return IntStream.range(0, generator.nextInt(5, 20))
                 .mapToObj(i -> supplier.get())
-                .toList();
+                .collect(collector);
+    }
+
+    public <T, C extends Collection<T>> C nextMocks(Class<T> type, Collector<T, ?, C> collector) {
+        return IntStream.range(0, generator.nextInt(5, 20))
+                .mapToObj(i -> mock(type))
+                .collect(collector);
     }
 }
