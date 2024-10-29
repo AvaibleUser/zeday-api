@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ayds.zeday.config.annotation.CurrentMfaUserDto;
 import com.ayds.zeday.config.annotation.CurrentUserDto;
 import com.ayds.zeday.domain.dto.TokenDto;
 import com.ayds.zeday.domain.dto.business.BusinessDto;
@@ -25,6 +26,7 @@ import com.ayds.zeday.domain.dto.user.MfaSecretDto;
 import com.ayds.zeday.domain.dto.user.MfaUserDto;
 import com.ayds.zeday.domain.dto.user.UpdateUserDto;
 import com.ayds.zeday.domain.dto.user.UserDto;
+import com.ayds.zeday.domain.dto.user.UserRoleDto;
 import com.ayds.zeday.domain.exception.BadRequestException;
 import com.ayds.zeday.domain.exception.ValueNotFoundException;
 import com.ayds.zeday.service.business.BusinessService;
@@ -59,9 +61,9 @@ public class UserController {
     }
 
     @GetMapping("/{email}")
-    public ResponseEntity<UserDto> getUser(@RequestHeader("CompanyId") @Positive long businessId,
+    public ResponseEntity<UserRoleDto> getUser(@RequestHeader("CompanyId") @Positive long businessId,
             @PathVariable @NotBlank String email) {
-        Optional<UserDto> user = userService.findUserByEmail(businessId, email);
+        Optional<UserRoleDto> user = userService.findUserByEmailWithRoles(businessId, email);
 
         return ResponseEntity.of(user);
     }
@@ -89,7 +91,7 @@ public class UserController {
 
     @GetMapping("/multifactor-authentication")
     public ResponseEntity<MfaSecretDto> generateMultiFactorAuthentication(
-            @RequestHeader("CompanyId") @Positive long businessId, @CurrentUserDto(MfaUserDto.class) MfaUserDto me) {
+            @RequestHeader("CompanyId") @Positive long businessId, @CurrentMfaUserDto MfaUserDto me) {
         if (me.getActiveMfa()) {
             throw new BadRequestException("El usuario ya tiene activada la autenticacion por dos factores");
         }
@@ -104,7 +106,7 @@ public class UserController {
 
     @PatchMapping("/multifactor-authentication")
     @ResponseStatus(NO_CONTENT)
-    public void addMultiFactorAuthentication(@CurrentUserDto(MfaUserDto.class) MfaUserDto me,
+    public void addMultiFactorAuthentication(@CurrentMfaUserDto MfaUserDto me,
             @RequestBody ConfirmMfaDto code) {
         if (!mfaAuthService.authencateUserWithMfaAuth(me.getMfaSecret(), Integer.parseInt(code.code()))) {
             throw new BadRequestException("El codigo no es valido");

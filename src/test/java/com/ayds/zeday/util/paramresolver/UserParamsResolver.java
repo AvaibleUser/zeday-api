@@ -1,6 +1,5 @@
 package com.ayds.zeday.util.paramresolver;
 
-import static java.util.stream.Collectors.toList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 
-import com.ayds.zeday.domain.dto.role.GeneralRoleDto;
 import com.ayds.zeday.domain.dto.user.AddUserDto;
 import com.ayds.zeday.domain.dto.user.UpdateUserDto;
 import com.ayds.zeday.domain.dto.user.UserDto;
@@ -59,7 +57,6 @@ public class UserParamsResolver extends RandomParamsResolver {
         given(user.getCreatedAt()).willReturn(random.nextInstant());
         given(user.getUpdatedAt()).willReturn(random.nextInstant());
         given(user.getPermissions()).willReturn(random.nextStrings());
-        given(user.getRoles()).willReturn(random.nextMocks(GeneralRoleDto.class, toList()));
 
         return user;
     }

@@ -51,7 +51,7 @@ public class PermissionEntity {
 
     @NonNull
     @Enumerated(STRING)
-    @Column(nullable = false, columnDefinition = "ENUM('READ', 'CREATE', 'UPDATE', 'DELETE')")
+    @Column(nullable = false)
     private AccessEnum grantAccess;
 
     @OneToOne(mappedBy = "permission")

@@ -15,6 +15,7 @@ import com.ayds.zeday.domain.dto.user.AddUserDto;
 import com.ayds.zeday.domain.dto.user.MfaUserDto;
 import com.ayds.zeday.domain.dto.user.UpdateUserDto;
 import com.ayds.zeday.domain.dto.user.UserDto;
+import com.ayds.zeday.domain.dto.user.UserRoleDto;
 import com.ayds.zeday.domain.entity.BusinessEntity;
 import com.ayds.zeday.domain.entity.RoleEntity;
 import com.ayds.zeday.domain.entity.UserEntity;
@@ -41,6 +42,10 @@ public class UserService implements UserDetailsService {
 
     public Optional<UserDto> findUserByEmail(long businessId, String email) {
         return userRepository.findByEmailAndBusinessId(email, businessId, UserDto.class);
+    }
+
+    public Optional<UserRoleDto> findUserByEmailWithRoles(long businessId, String email) {
+        return userRepository.findByEmailAndBusinessId(email, businessId, UserRoleDto.class);
     }
 
     public Optional<MfaUserDto> findMfaUserByEmail(long businessId, String email) {

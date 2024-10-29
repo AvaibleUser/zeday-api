@@ -59,7 +59,7 @@ public class ServiceController {
     @PutMapping("/{serviceId}")
     @ResponseStatus(NO_CONTENT)
     public void updateBusinessService(@RequestHeader("CompanyId") @Positive long businessId,
-            @PathVariable @Positive long serviceId, @RequestBody @Valid UpdateServiceDto service) {
+            @PathVariable("serviceId") @Positive long serviceId, @RequestBody @Valid UpdateServiceDto service) {
         serviceService.updateService(businessId, serviceId, service);
     }
 

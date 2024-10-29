@@ -1,7 +1,6 @@
 package com.ayds.zeday.controller;
 
 import static org.mockito.BDDMockito.given;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,12 +41,11 @@ public class ScheduleControllerTest {
     public void canGetSchedules(long businessId, List<GeneralScheduleDto> expectedSchedules) throws Exception {
         given(scheduleService.findAllBusinessSchedules(businessId)).willReturn(expectedSchedules);
 
-        ResultActions result = mockMvc.perform(
+        ResultActions actualResult = mockMvc.perform(
                 get("/api/schedules")
-                        .accept(APPLICATION_JSON)
                         .header("CompanyId", businessId));
 
-        result.andExpect(status().isOk());
-        result.andExpect(content().string(mapper.writeValueAsString(expectedSchedules)));
+        actualResult.andExpect(status().isOk())
+                .andExpect(content().string(mapper.writeValueAsString(expectedSchedules)));
     }
 }

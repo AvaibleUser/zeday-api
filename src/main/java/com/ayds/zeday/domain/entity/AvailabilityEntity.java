@@ -1,5 +1,6 @@
 package com.ayds.zeday.domain.entity;
 
+import static jakarta.persistence.EnumType.STRING;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.time.DayOfWeek;
@@ -7,17 +8,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -52,7 +46,7 @@ public class AvailabilityEntity {
     @Column(nullable = false)
     private Boolean recurring;
 
-    @Column(columnDefinition = "ENUM('MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY')")
+    @Enumerated(STRING)
     private DayOfWeek dayOfWeek;
 
     private LocalDate specificDay;

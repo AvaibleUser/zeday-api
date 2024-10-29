@@ -1,15 +1,35 @@
 package com.ayds.zeday.domain.dto.role;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Set;
 
-import lombok.Builder;
+import org.springframework.beans.factory.annotation.Value;
 
-@Builder(toBuilder = true)
-public record GeneralRoleDto(
-        Long id,
-        String name,
-        String description,
-        Boolean multiuser,
-        Instant createdAt,
-        Instant updatedAt) {
+public interface GeneralRoleDto {
+
+    Long getId();
+
+    String getName();
+
+    String getLastname();
+
+    String getEmail();
+
+    String getNit();
+
+    String getCui();
+
+    String getPhone();
+
+    Boolean getActiveMfa();
+
+    Instant getCreatedAt();
+
+    Instant getUpdatedAt();
+
+    @Value("#{@userDtoFiller.getPermissions(target)}")
+    List<String> getPermissions();
+
+    Set<GeneralRoleDto> getRoles();
 }

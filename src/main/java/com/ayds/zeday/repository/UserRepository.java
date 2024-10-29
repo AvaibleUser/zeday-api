@@ -9,10 +9,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.ayds.zeday.domain.dto.user.MfaUserDto;
+import com.ayds.zeday.domain.dto.user.UserDto;
 import com.ayds.zeday.domain.entity.UserEntity;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
+
+    Optional<UserDto> findUserDtoById(Long id);
+
+    Optional<MfaUserDto> findMfaUserDtoById(Long id);
 
     <U> Optional<U> findUserById(Long id, Class<U> type);
 

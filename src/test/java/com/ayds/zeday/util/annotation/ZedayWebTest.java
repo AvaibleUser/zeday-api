@@ -8,17 +8,14 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.test.context.ActiveProfiles;
-
-import com.ayds.zeday.util.paramresolver.PrimitivesParamsResolver;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 
 @Retention(RUNTIME)
 @Target(TYPE)
 @Documented
 @Inherited
-@ActiveProfiles("test")
-@ExtendWith(PrimitivesParamsResolver.class)
+@ZedayTest
+@AutoConfigureMockMvc
 public @interface ZedayWebTest {
 
 }

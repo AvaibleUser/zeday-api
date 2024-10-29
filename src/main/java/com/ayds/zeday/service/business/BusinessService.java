@@ -44,6 +44,7 @@ public class BusinessService {
         BusinessEntity newBusiness = BusinessEntity.builder()
                 .name(business.name())
                 .autoAssignment(business.autoAssignment().orElse(false))
+                .logoUrl("https://www.diabetes.ie/wp-content/uploads/2021/05/logo-Placeholder.jpg")
                 .build();
 
         newBusiness = businessRepository.saveAndFlush(newBusiness);

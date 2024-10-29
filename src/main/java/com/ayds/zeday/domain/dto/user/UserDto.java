@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 
-import com.ayds.zeday.domain.dto.role.GeneralRoleDto;
-
 public interface UserDto {
 
     Long getId();
@@ -31,6 +29,4 @@ public interface UserDto {
 
     @Value("#{@userDtoFiller.getPermissions(target)}")
     List<String> getPermissions();
-
-    List<GeneralRoleDto> getRoles();
 }

@@ -1,22 +1,16 @@
 package com.ayds.zeday.domain.entity;
 
+import static jakarta.persistence.EnumType.STRING;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.time.Instant;
 
+import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.ayds.zeday.domain.enums.AppointmentStateEnum;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -48,7 +42,7 @@ public class AppointmentEntity {
     private Instant endAt;
 
     @Builder.Default
-    @Column(columnDefinition = "ENUM('SCHEDULED', 'CANCELLED', 'COMPLETED', 'NOT_ARRIVED')")
+    @Enumerated(STRING)
     private AppointmentStateEnum state = AppointmentStateEnum.SCHEDULED;
 
     private String notes;

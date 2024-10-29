@@ -66,7 +66,7 @@ public class BusinessController {
 
     @PatchMapping
     public ResponseEntity<BusinessLogoDto> updateBusinessLogo(@RequestHeader("CompanyId") @Positive long businessId,
-            @RequestPart MultipartFile logo) {
+            @RequestPart("logo") MultipartFile logo) {
         BusinessDto business = businessService.findBusiness(businessId)
                 .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar la compañia"));
 
