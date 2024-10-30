@@ -1,10 +1,19 @@
 package com.ayds.zeday.service.scheduling;
 
+import static java.time.DayOfWeek.FRIDAY;
+import static java.time.DayOfWeek.MONDAY;
+import static java.time.DayOfWeek.THURSDAY;
+import static java.time.DayOfWeek.TUESDAY;
+import static java.time.DayOfWeek.WEDNESDAY;
+
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +23,7 @@ import com.ayds.zeday.domain.dto.schedule.GeneralScheduleDto;
 import com.ayds.zeday.domain.dto.schedule.ScheduleDto;
 import com.ayds.zeday.domain.dto.schedule.UpdateScheduleDto;
 import com.ayds.zeday.domain.dto.user.UserDto;
+import com.ayds.zeday.domain.entity.AvailabilityEntity;
 import com.ayds.zeday.domain.entity.BusinessEntity;
 import com.ayds.zeday.domain.entity.PermissionEntity;
 import com.ayds.zeday.domain.entity.RoleEntity;
@@ -22,6 +32,7 @@ import com.ayds.zeday.domain.entity.ServiceEntity;
 import com.ayds.zeday.domain.enums.AccessEnum;
 import com.ayds.zeday.domain.exception.RequestConflictException;
 import com.ayds.zeday.domain.exception.ValueNotFoundException;
+import com.ayds.zeday.repository.AvailabilityRepository;
 import com.ayds.zeday.repository.BusinessRepository;
 import com.ayds.zeday.repository.ScheduleRepository;
 import com.ayds.zeday.repository.ServiceRepository;
@@ -37,6 +48,7 @@ public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final ServiceRepository serviceRepository;
     private final UserRepository userRepository;
+    private final AvailabilityRepository availabilityRepository;
 
     public List<GeneralScheduleDto> findAllBusinessSchedules(long businessId) {
         return scheduleRepository.findAllByBusinessId(businessId, GeneralScheduleDto.class);
@@ -50,8 +62,7 @@ public class ScheduleService {
 
     public Optional<ScheduleDto> findBusinessSchedule(long businessId, long scheduleId, LocalDate from,
             LocalDate to) {
-        return scheduleRepository.findByIdAndBusinessIdAndBetweenDates(scheduleId, businessId, from, to,
-                ScheduleDto.class);
+        return scheduleRepository.findByIdAndBusinessId(scheduleId, businessId, ScheduleDto.class);
     }
 
     public List<UserDto> findPossibleAttendantInBusinessSchedule(long businessId, long scheduleId, long serviceId,
@@ -84,7 +95,7 @@ public class ScheduleService {
                 .description("Role creato para identificar a los encargados del horario '" + schedule.title() + "'")
                 .multiuser(true)
                 .business(business)
-                .permission(readPermission)
+                .permissions(new HashSet<>(Set.of(readPermission)))
                 .build();
 
         ScheduleEntity newSchedule = ScheduleEntity.builder()
@@ -94,7 +105,22 @@ public class ScheduleService {
                 .business(business)
                 .build();
 
-        scheduleRepository.save(newSchedule);
+        newSchedule = scheduleRepository.saveAndFlush(newSchedule);
+
+        AvailabilityEntity monday = AvailabilityEntity.builder()
+                .startAt(LocalTime.of(8, 0))
+                .endAt(LocalTime.of(17, 0))
+                .recurring(true)
+                .dayOfWeek(MONDAY)
+                .schedule(newSchedule)
+                .build();
+
+        AvailabilityEntity tuesday = monday.withDayOfWeek(TUESDAY);
+        AvailabilityEntity wednesday = monday.withDayOfWeek(WEDNESDAY);
+        AvailabilityEntity thursday = monday.withDayOfWeek(THURSDAY);
+        AvailabilityEntity friday = monday.withDayOfWeek(FRIDAY);
+
+        availabilityRepository.saveAll(List.of(monday, tuesday, wednesday, thursday, friday));
     }
 
     @Transactional

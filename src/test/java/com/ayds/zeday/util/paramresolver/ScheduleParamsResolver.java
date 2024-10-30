@@ -28,7 +28,7 @@ public class ScheduleParamsResolver extends RandomParamsResolver {
     public ScheduleParamsResolver() {
         super(List.of(GeneralScheduleDto.class, ScheduleDto.class, AddScheduleDto.class, UpdateScheduleDto.class,
                 ScheduleEntity.class),
-                List.of(GeneralScheduleDto.class));
+                List.of(GeneralScheduleDto.class, ScheduleDto.class));
     }
 
     @Override
@@ -57,6 +57,12 @@ public class ScheduleParamsResolver extends RandomParamsResolver {
                 Type genClass = Arrays.stream(genType.getActualTypeArguments()).findFirst().get();
                 if (genClass == GeneralScheduleDto.class) {
                     return random.nextObjects(this::getGeneralScheduleDto, toList());
+                }
+                if (genClass == ScheduleDto.class) {
+                    return random.nextObjects(this::getScheduleDto, toList());
+                }
+                if (genClass == ScheduleEntity.class) {
+                    return random.nextObjects(this::getScheduleDto, toList());
                 }
             }
         }

@@ -4,6 +4,7 @@ import static org.mockito.Mockito.mock;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -41,6 +42,10 @@ public class RandomUtils {
 
     public Instant nextInstant() {
         return Instant.ofEpochMilli(nextPositiveLong());
+    }
+
+    public LocalDate nextDate() {
+        return LocalDate.ofEpochDay(nextPositiveInt());
     }
 
     public Duration nextDuration() {

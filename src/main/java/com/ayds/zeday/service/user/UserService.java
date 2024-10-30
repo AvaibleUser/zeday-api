@@ -1,7 +1,9 @@
 package com.ayds.zeday.service.user;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -161,7 +163,7 @@ public class UserService implements UserDetailsService {
                 .nit(user.nit())
                 .cui(user.cui())
                 .phone(user.phone())
-                .role(role)
+                .roles(new HashSet<>(Set.of(role)))
                 .business(business)
                 .build();
 

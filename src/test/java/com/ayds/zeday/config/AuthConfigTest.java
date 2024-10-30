@@ -14,9 +14,9 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 
 import com.ayds.zeday.property.TokenProperties;
-import com.ayds.zeday.util.annotation.ZedayTest;
+import com.ayds.zeday.util.annotation.ZedayWebTest;
 
-@ZedayTest
+@ZedayWebTest
 public class AuthConfigTest {
 
     @Autowired

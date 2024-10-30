@@ -27,7 +27,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.Singular;
 
 @Entity(name = "role")
 @Table(name = "role", uniqueConstraints = @UniqueConstraint(columnNames = { "name", "business_id" }))
@@ -58,7 +57,6 @@ public class RoleEntity {
     @JoinColumn(name = "business_id")
     private BusinessEntity business;
 
-    @Singular
     @ManyToMany(fetch = EAGER)
     @JoinTable(name = "role_permission", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "permission_id"))
     private Set<PermissionEntity> permissions;

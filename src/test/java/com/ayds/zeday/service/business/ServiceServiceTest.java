@@ -16,8 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 
 import com.ayds.zeday.domain.dto.service.AddServiceDto;
 import com.ayds.zeday.domain.dto.service.ServiceDto;
@@ -42,13 +42,13 @@ public class ServiceServiceTest {
     @Captor
     private ArgumentCaptor<ServiceEntity> serviceCaptor;
 
-    @MockBean
+    @Mock
     private BusinessRepository businessRepository;
 
-    @MockBean
+    @Mock
     private ServiceRepository serviceRepository;
 
-    @Autowired
+    @InjectMocks
     private ServiceService serviceService;
 
     @Test
@@ -249,7 +249,8 @@ public class ServiceServiceTest {
 
     @Test
     public void canBlockUpdateServiceWithServiceNotFound(long businessId, long serviceId, UpdateServiceDto service) {
-        given(businessRepository.findById(businessId)).willReturn(Optional.empty());
+        given(serviceRepository.findByIdAndBusinessId(serviceId, businessId, ServiceEntity.class))
+                .willReturn(Optional.empty());
 
         assertThrows(ValueNotFoundException.class, () -> serviceService.updateService(businessId, serviceId, service));
     }

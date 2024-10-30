@@ -171,12 +171,14 @@ public class BusinessControllerTest {
         given(fileStorageService.store(contains(String.valueOf(businessId)), eq(logo)))
                 .willReturn(logoPath);
 
+        willDoNothing().given(businessService).addImageToBusiness(isA(Long.class), isA(String.class));
+
         ResultActions actualResult = mockMvc.perform(
                 multipart(PATCH, "/api/companies")
                         .file(logo)
                         .header("CompanyId", businessId));
 
-        verify(businessService, never()).addImageToBusiness(anyLong(), any());
+        verify(businessService).addImageToBusiness(businessId, logoPath);
         actualResult.andExpect(status().isOk())
                 .andExpect(content().string(mapper.writeValueAsString(expectedBusiness)));
     }

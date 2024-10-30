@@ -1,7 +1,7 @@
 plugins {
 	java
 	jacoco
-	id("org.springframework.boot") version "3.3.3"
+	id("org.springframework.boot") version "3.3.5"
 	id("io.spring.dependency-management") version "1.1.6"
 	id("org.hibernate.orm") version "6.5.3.Final"
 	// id("org.graalvm.buildtools.native") version "0.10.3"
@@ -56,8 +56,14 @@ hibernate {
 	}
 }
 
+tasks.withType<JavaCompile> {
+    options.compilerArgs.add("-parameters")
+}
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+tasks.withType<Test>().configureEach {
+    maxHeapSize = "8024m"
 }
 tasks.jacocoTestReport {
 	dependsOn(tasks.test)

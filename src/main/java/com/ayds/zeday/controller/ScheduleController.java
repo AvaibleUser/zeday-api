@@ -53,7 +53,8 @@ public class ScheduleController {
             @PathVariable @NotEmpty List<@Positive Long> serviceIds,
             @RequestParam(defaultValue = "#{T(java.time.LocalDate).now()}") LocalDate from,
             @RequestParam(defaultValue = "false") boolean week) {
-        List<ScheduleDto> schedules = scheduleService.findAllBusinessSchedulesByService(businessId, from, from,
+        LocalDate to = week ? from.plusWeeks(1) : from;
+        List<ScheduleDto> schedules = scheduleService.findAllBusinessSchedulesByService(businessId, from, to,
                 serviceIds);
 
         return ResponseEntity.ok(schedules);
@@ -61,9 +62,9 @@ public class ScheduleController {
 
     @GetMapping("/{scheduleId}")
     public ResponseEntity<ScheduleDto> getSchedule(@RequestHeader("CompanyId") @Positive long businessId,
-            @PathVariable @Positive long scheduleId,
-            @RequestParam(defaultValue = "#{T(java.time.LocalDate).now()}") LocalDate from,
-            @RequestParam(defaultValue = "false") boolean week) {
+            @PathVariable("scheduleId") @Positive long scheduleId,
+            @RequestParam(name = "from", defaultValue = "#{T(java.time.LocalDate).now()}") LocalDate from,
+            @RequestParam(name = "week", defaultValue = "false") boolean week) {
         LocalDate to = week ? from.plusWeeks(1) : from;
         Optional<ScheduleDto> schedule = scheduleService.findBusinessSchedule(businessId, scheduleId, from, to);
 

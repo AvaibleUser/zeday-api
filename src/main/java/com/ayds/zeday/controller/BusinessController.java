@@ -5,7 +5,6 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 import java.util.Optional;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -67,14 +66,12 @@ public class BusinessController {
     @PatchMapping
     public ResponseEntity<BusinessLogoDto> updateBusinessLogo(@RequestHeader("CompanyId") @Positive long businessId,
             @RequestPart("logo") MultipartFile logo) {
-        BusinessDto business = businessService.findBusiness(businessId)
+        businessService.findBusiness(businessId)
                 .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar la compañia"));
 
         String logoUrl = fileStorageService.store("business_" + businessId, logo);
 
-        if (ObjectUtils.isEmpty(business.logoUrl())) {
-            businessService.addImageToBusiness(businessId, logoUrl);
-        }
+        businessService.addImageToBusiness(businessId, logoUrl);
 
         return ResponseEntity.ok(new BusinessLogoDto(businessId, logoUrl));
     }

@@ -33,7 +33,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.Singular;
 
 @Entity(name = "user")
 @Table(name = "user", uniqueConstraints = {
@@ -96,7 +95,6 @@ public class UserEntity implements UserDetails {
     private BusinessEntity business;
 
     @NonNull
-    @Singular
     @ManyToMany(fetch = EAGER)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<RoleEntity> roles;

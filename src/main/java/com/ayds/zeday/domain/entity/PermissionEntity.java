@@ -20,7 +20,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,11 +27,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.Singular;
 
 @Entity(name = "permission")
-@Table(name = "permission", uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "module", "grantAccess" }) })
+@Table(name = "permission")
 @Data
 @Builder(toBuilder = true)
 @EqualsAndHashCode(of = "id")
@@ -57,7 +54,6 @@ public class PermissionEntity {
     @OneToOne(mappedBy = "permission")
     private ScheduleEntity schedule;
 
-    @Singular
     @ManyToMany(mappedBy = "permissions")
     private Set<RoleEntity> roles;
 

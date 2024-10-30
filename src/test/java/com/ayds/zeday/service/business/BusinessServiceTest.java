@@ -15,8 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 
 import com.ayds.zeday.domain.dto.business.AddBusinessDto;
 import com.ayds.zeday.domain.dto.business.BusinessDto;
@@ -38,16 +38,16 @@ public class BusinessServiceTest {
     @Captor
     private ArgumentCaptor<BusinessEntity> businessCaptor;
 
-    @MockBean
+    @Mock
     private UserRepository userRepository;
 
-    @MockBean
+    @Mock
     private BusinessRepository businessRepository;
 
-    @MockBean
+    @Mock
     private ConcurrentMap<Long, ConcurrentMap<String, String>> emailConfirmationCodes;
 
-    @Autowired
+    @InjectMocks
     private BusinessService businessService;
 
     @Test

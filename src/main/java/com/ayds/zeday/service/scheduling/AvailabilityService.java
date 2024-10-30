@@ -1,10 +1,13 @@
 package com.ayds.zeday.service.scheduling;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ayds.zeday.domain.dto.availability.AddAvailabilityDto;
-import com.ayds.zeday.domain.dto.availability.UpdateAvailabilityDto;
 import com.ayds.zeday.domain.entity.AvailabilityEntity;
 import com.ayds.zeday.domain.entity.ScheduleEntity;
 import com.ayds.zeday.domain.exception.BadRequestException;
@@ -27,52 +30,64 @@ public class AvailabilityService {
         ScheduleEntity schedule = scheduleRepository.findByIdAndBusinessId(scheduleId, businessId, ScheduleEntity.class)
                 .orElseThrow(() -> new ValueNotFoundException("No se encontro el horario o la compañia"));
 
-        if (availability.recurring()) {
-            if (availabilityRepository.existsByScheduleIdAndRecurringAndDayOfWeek(scheduleId, true,
-                    availability.dayOfWeek().orElseThrow(
-                            () -> new BadRequestException(
-                                    "La disponibilidad recurrente requiere un dia de la semana")))) {
-                throw new RequestConflictException("La disponibilidad recurrente del dia de la semana esta ocupado");
-            }
-        } else {
-            if (availabilityRepository.existsByScheduleIdAndRecurringAndSpecificDay(scheduleId, false,
-                    availability.specificDay()
-                            .orElseThrow(
-                                    () -> new BadRequestException("La disponibilidad requiere un dia especifico")))) {
-                throw new RequestConflictException("La disponibilidad de ese dia esta ocupado");
-            }
+        DayOfWeek dow = DayOfWeek.of(availability.dayOfWeek());
+
+        if (availabilityRepository.existsByScheduleIdAndRecurringAndDayOfWeek(scheduleId, true, dow)) {
+            throw new RequestConflictException("La disponibilidad recurrente del dia de la semana esta ocupado");
         }
 
-        AvailabilityEntity newAvailability = AvailabilityEntity.builder()
-                .startAt(availability.startAt())
-                .endAt(availability.endAt())
-                .recurring(availability.recurring())
-                .dayOfWeek(availability.dayOfWeek().filter(dow -> availability.recurring()).orElse(null))
-                .specificDay(availability.specificDay().filter(sd -> !availability.recurring()).orElse(null))
-                .schedule(schedule)
-                .build();
+        AvailabilityEntity newAvailability = availabilityRepository
+                .findByScheduleIdAndScheduleBusinessId(scheduleId, businessId, AvailabilityEntity.class)
+                .stream()
+                .findFirst()
+                .map(ava -> ava.withDayOfWeek(dow))
+                .orElseGet(() -> AvailabilityEntity.builder()
+                        .startAt(availability.startAt().orElseThrow(
+                                () -> new BadRequestException("La disponibilidad debe tener una hora de inicio")))
+                        .endAt(availability.endAt().orElseThrow(
+                                () -> new BadRequestException("La disponibilidad debe tener una hora de fin")))
+                        .recurring(true)
+                        .dayOfWeek(dow)
+                        .schedule(schedule)
+                        .build());
 
         availabilityRepository.save(newAvailability);
     }
 
     @Transactional
-    public void updateScheduleUnavailability(long businessId, long scheduleId, long availabilityId,
-            UpdateAvailabilityDto availability) {
-        AvailabilityEntity dbAvailability = availabilityRepository
-                .findByIdAndScheduleIdAndScheduleBusinessId(availabilityId, scheduleId, businessId)
-                .orElseThrow(() -> new ValueNotFoundException("No se encontro la indisponibilidad"));
+    public void updateScheduleUnavailability(long businessId, long scheduleId,
+            List<AddAvailabilityDto> availabilities) {
+        ScheduleEntity schedule = scheduleRepository.findByIdAndBusinessId(scheduleId, businessId, ScheduleEntity.class)
+                .orElseThrow(() -> new ValueNotFoundException("No se encontro el horario o la compañia"));
 
-        availability.startAt().ifPresent(dbAvailability::setStartAt);
-        availability.endAt().ifPresent(dbAvailability::setEndAt);
-        availability.dayOfWeek()
-                .filter(sd -> dbAvailability.getRecurring())
-                .ifPresent(dbAvailability::setDayOfWeek);
+        List<AvailabilityEntity> dbAvailabilities = availabilityRepository
+                .findByScheduleIdAndScheduleBusinessId(scheduleId, businessId, AvailabilityEntity.class);
 
-        availability.specificDay()
-                .filter(sd -> !dbAvailability.getRecurring())
-                .ifPresent(dbAvailability::setSpecificDay);
+        List<DayOfWeek> week = availabilities.stream()
+                .map(AddAvailabilityDto::dayOfWeek)
+                .map(DayOfWeek::of)
+                .toList();
 
-        availabilityRepository.save(dbAvailability);
+        LocalTime startAt = availabilities.getFirst()
+                .startAt()
+                .orElseGet(() -> dbAvailabilities.getFirst().getStartAt());
+
+        LocalTime endAt = availabilities.getFirst()
+                .endAt()
+                .orElseGet(() -> dbAvailabilities.getFirst().getEndAt());
+
+        List<AvailabilityEntity> newAvailabilities = week.stream()
+                .map(dow -> AvailabilityEntity.builder()
+                        .startAt(startAt)
+                        .endAt(endAt)
+                        .recurring(true)
+                        .dayOfWeek(dow)
+                        .schedule(schedule)
+                        .build())
+                .toList();
+        availabilityRepository.deleteAll(dbAvailabilities);
+        availabilityRepository.saveAll(newAvailabilities);
+
     }
 
     @Transactional

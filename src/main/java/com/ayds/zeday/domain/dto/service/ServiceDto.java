@@ -7,7 +7,6 @@ import lombok.Builder;
 
 @Builder(toBuilder = true)
 public record ServiceDto(
-        Long id,
         String name,
         String description,
         Duration duration,
@@ -16,7 +15,5 @@ public record ServiceDto(
         Integer maxDaysToCancel,
         Integer minDaysToSchedule,
         Integer maxDaysToSchedule,
-        Integer advancePaymentPercentage,
-        Instant createdAt,
-        Instant updatedAt) {
+        Integer advancePaymentPercentage) {
 }

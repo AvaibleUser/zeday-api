@@ -104,7 +104,7 @@ public class AuthConfig {
 
     @Bean
     ConcurrentMap<Long, ConcurrentMap<String, String>> signUpCondifmationCodes() {
-        return new ConcurrentHashMap<>(Map.of(1L, new ConcurrentHashMap<>()));
+        return new ConcurrentHashMap<>(Map.of(1L, new ConcurrentHashMap<>(), 2L, new ConcurrentHashMap<>()));
     }
 
     public AbstractAuthenticationToken convertJwtToAuthentication(Jwt jwt) {

@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,8 +34,10 @@ public class RoleController {
     private final RoleService roleService;
 
     @GetMapping
-    public List<RoleDto> getBusinessRoles(@RequestHeader("CompanyId") @Positive long businessId) {
-        return roleService.findAllRolesForBusiness(businessId);
+    public ResponseEntity<List<RoleDto>> getBusinessRoles(@RequestHeader("CompanyId") @Positive long businessId) {
+        List<RoleDto> roles = roleService.findAllRolesForBusiness(businessId);
+
+        return ResponseEntity.ok(roles);
     }
 
     @PostMapping

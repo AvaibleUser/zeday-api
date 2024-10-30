@@ -13,8 +13,8 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.http.ResponseEntity;
 
 import com.ayds.zeday.domain.dto.service.AddServiceDto;
@@ -28,10 +28,10 @@ import com.ayds.zeday.util.paramresolver.ServiceParamsResolver;
 @ExtendWith(ServiceParamsResolver.class)
 public class ServiceControllerTest {
 
-    @MockBean
+    @Mock
     private ServiceService serviceService;
 
-    @Autowired
+    @InjectMocks
     private ServiceController serviceController;
 
     @Test
