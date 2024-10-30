@@ -5,7 +5,8 @@ import org.springframework.context.annotation.Configuration;
 
 import com.ayds.zeday.property.AmazonProperties;
 
-import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 
@@ -16,7 +17,8 @@ public class AmazonConfig {
     S3Client s3Client(AmazonProperties amazonProperties) {
         return S3Client.builder()
                 .region(Region.of(amazonProperties.region()))
-                .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
+                .credentialsProvider(StaticCredentialsProvider
+                        .create(AwsBasicCredentials.create(amazonProperties.accessKey(), amazonProperties.secretKey())))
                 .forcePathStyle(true)
                 .build();
     }

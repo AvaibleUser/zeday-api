@@ -5,5 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("aws.s3")
 public record AmazonProperties(
         String region,
-        String bucketName) {
+        String bucketName,
+        String accessKey,
+        String secretKey) {
 }
