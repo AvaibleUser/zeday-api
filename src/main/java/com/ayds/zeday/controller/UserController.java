@@ -38,6 +38,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
+import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -68,6 +69,7 @@ public class UserController {
         return ResponseEntity.of(user);
     }
 
+    @Generated
     @PutMapping
     public ResponseEntity<TokenDto> updateMe(@CurrentUserDto UserDto me, @RequestBody @Valid UpdateUserDto user) {
         userService.changeUserInfo(me.getId(), user);
@@ -75,7 +77,7 @@ public class UserController {
         return ResponseEntity.ok(toTokenDto(me));
     }
 
-    @PostMapping("/{userId}/roles/{roleIds}")
+    @PostMapping("/{userId}/roles/{roleId}")
     @ResponseStatus(NO_CONTENT)
     public void addRolesToUser(@RequestHeader("CompanyId") @Positive long businessId,
             @PathVariable @Positive long userId, @PathVariable @Positive long roleId) {
@@ -84,11 +86,12 @@ public class UserController {
 
     @PutMapping("/{userId}/roles/{roleIds}")
     @ResponseStatus(NO_CONTENT)
-    public void addRolesToUser(@RequestHeader("CompanyId") @Positive long businessId,
+    public void toggleRolesToUser(@RequestHeader("CompanyId") @Positive long businessId,
             @PathVariable @Positive long userId, @PathVariable @NotEmpty List<@Positive Long> roleIds) {
         userService.toggleUserRoles(businessId, userId, roleIds);
     }
 
+    @Generated
     @GetMapping("/multifactor-authentication")
     public ResponseEntity<MfaSecretDto> generateMultiFactorAuthentication(
             @RequestHeader("CompanyId") @Positive long businessId, @CurrentMfaUserDto MfaUserDto me) {
@@ -104,6 +107,7 @@ public class UserController {
         return ResponseEntity.ok(new MfaSecretDto(qrUrl, me.getMfaSecret()));
     }
 
+    @Generated
     @PatchMapping("/multifactor-authentication")
     @ResponseStatus(NO_CONTENT)
     public void addMultiFactorAuthentication(@CurrentMfaUserDto MfaUserDto me,

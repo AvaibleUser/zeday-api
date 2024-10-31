@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -48,12 +49,20 @@ public class RandomUtils {
         return LocalDate.ofEpochDay(nextPositiveInt());
     }
 
+    public LocalTime nextTime() {
+        return LocalTime.of(generator.nextInt(0, 23), generator.nextInt(0, 59));
+    }
+
     public Duration nextDuration() {
         return Duration.ofSeconds(nextPositiveLong());
     }
 
+    public <T extends Enum<T>> T nextEnum(Class<T> type) {
+        return type.getEnumConstants()[generator.nextInt(0, type.getEnumConstants().length)];
+    }
+
     public List<String> nextStrings() {
-        return IntStream.range(0, generator.nextInt())
+        return IntStream.range(0, generator.nextInt(5, 20))
                 .mapToObj(i -> nextString())
                 .toList();
     }

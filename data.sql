@@ -33,3 +33,10 @@ VALUES ('ADMIN', 'READ');
 
 INSERT INTO role_permission (role_id, permission_id)
 VALUES (1, 1);
+
+-- Add a schedule
+INSERT INTO schedule (title, permission_id, role_id, business_id)
+VALUES ('Horario de prueba', 1, 1, 2);
+
+INSERT INTO appointment (start_at, end_at, state, customer_id, schedule_id, service_id, attendant_id, created_at)
+VALUES ('2024-10-30 14:30:00', '2024-10-30 15:30:00', 'SCHEDULED', 3, 1, 1, 2, '2022-01-01 08:00:00');

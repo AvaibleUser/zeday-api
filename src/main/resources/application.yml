@@ -25,7 +25,7 @@ spring:
   jackson:
     time-zone: UTC
     mapper:
-      '[ACCEPT_CASE_INSENSITIVE_ENUMS]': true
+      "[ACCEPT_CASE_INSENSITIVE_ENUMS]": true
 
   jpa:
     show-sql: true

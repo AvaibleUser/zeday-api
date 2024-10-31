@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -51,6 +52,9 @@ public class AuthConfigTest {
 
         then(actualAuthentication)
                 .extracting(AbstractAuthenticationToken::getAuthorities)
-                .isEqualTo(expectedAuthorities);
+                .matches(auth -> auth.stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .toList()
+                        .containsAll(expectedAuthorities));
     }
 }

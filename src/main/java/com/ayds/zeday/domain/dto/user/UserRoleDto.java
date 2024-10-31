@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.ayds.zeday.domain.dto.role.GeneralRoleDto;
 
+import lombok.Builder;
+import lombok.Data;
+
 public interface UserRoleDto {
 
     Long getId();
@@ -34,4 +37,22 @@ public interface UserRoleDto {
     List<String> getPermissions();
 
     Set<GeneralRoleDto> getRoles();
+
+    @Data
+    @Builder(toBuilder = true)
+    class UserRoleDtoImpl implements UserRoleDto {
+
+        private Long id;
+        private String name;
+        private String lastname;
+        private String email;
+        private String nit;
+        private String cui;
+        private String phone;
+        private Boolean activeMfa;
+        private Instant createdAt;
+        private Instant updatedAt;
+        private List<String> permissions;
+        private Set<GeneralRoleDto> roles;
+    }
 }

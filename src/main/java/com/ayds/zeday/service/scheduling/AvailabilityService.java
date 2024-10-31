@@ -30,7 +30,7 @@ public class AvailabilityService {
         ScheduleEntity schedule = scheduleRepository.findByIdAndBusinessId(scheduleId, businessId, ScheduleEntity.class)
                 .orElseThrow(() -> new ValueNotFoundException("No se encontro el horario o la compañia"));
 
-        DayOfWeek dow = DayOfWeek.of(availability.dayOfWeek());
+        DayOfWeek dow = availability.dayOfWeek();
 
         if (availabilityRepository.existsByScheduleIdAndRecurringAndDayOfWeek(scheduleId, true, dow)) {
             throw new RequestConflictException("La disponibilidad recurrente del dia de la semana esta ocupado");
@@ -65,7 +65,6 @@ public class AvailabilityService {
 
         List<DayOfWeek> week = availabilities.stream()
                 .map(AddAvailabilityDto::dayOfWeek)
-                .map(DayOfWeek::of)
                 .toList();
 
         LocalTime startAt = availabilities.getFirst()

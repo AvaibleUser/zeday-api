@@ -5,6 +5,7 @@ import static java.time.DayOfWeek.MONDAY;
 import static java.time.DayOfWeek.THURSDAY;
 import static java.time.DayOfWeek.TUESDAY;
 import static java.time.DayOfWeek.WEDNESDAY;
+import static java.util.stream.Collectors.toSet;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -18,10 +19,14 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ayds.zeday.domain.dto.appointment.AppointmentDto;
+import com.ayds.zeday.domain.dto.appointment.GeneralAppointmentDto;
+import com.ayds.zeday.domain.dto.availability.AvailabilityDto;
 import com.ayds.zeday.domain.dto.schedule.AddScheduleDto;
 import com.ayds.zeday.domain.dto.schedule.GeneralScheduleDto;
 import com.ayds.zeday.domain.dto.schedule.ScheduleDto;
 import com.ayds.zeday.domain.dto.schedule.UpdateScheduleDto;
+import com.ayds.zeday.domain.dto.service.ServiceDto;
 import com.ayds.zeday.domain.dto.user.UserDto;
 import com.ayds.zeday.domain.entity.AvailabilityEntity;
 import com.ayds.zeday.domain.entity.BusinessEntity;
@@ -32,12 +37,14 @@ import com.ayds.zeday.domain.entity.ServiceEntity;
 import com.ayds.zeday.domain.enums.AccessEnum;
 import com.ayds.zeday.domain.exception.RequestConflictException;
 import com.ayds.zeday.domain.exception.ValueNotFoundException;
+import com.ayds.zeday.repository.AppointmentRepository;
 import com.ayds.zeday.repository.AvailabilityRepository;
 import com.ayds.zeday.repository.BusinessRepository;
 import com.ayds.zeday.repository.ScheduleRepository;
 import com.ayds.zeday.repository.ServiceRepository;
 import com.ayds.zeday.repository.UserRepository;
 
+import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -49,6 +56,7 @@ public class ScheduleService {
     private final ServiceRepository serviceRepository;
     private final UserRepository userRepository;
     private final AvailabilityRepository availabilityRepository;
+    private final AppointmentRepository appointmentRepository;
 
     public List<GeneralScheduleDto> findAllBusinessSchedules(long businessId) {
         return scheduleRepository.findAllByBusinessId(businessId, GeneralScheduleDto.class);
@@ -60,11 +68,50 @@ public class ScheduleService {
                 ScheduleDto.class);
     }
 
+    @Generated
     public Optional<ScheduleDto> findBusinessSchedule(long businessId, long scheduleId, LocalDate from,
             LocalDate to) {
-        return scheduleRepository.findByIdAndBusinessId(scheduleId, businessId, ScheduleDto.class);
+        return scheduleRepository.findByIdAndBusinessId(scheduleId, businessId, GeneralScheduleDto.class)
+                .map(sch -> extracted(businessId, scheduleId, sch));
+
     }
 
+    @Generated
+    private ScheduleDto extracted(long businessId, long scheduleId, GeneralScheduleDto sch) {
+        return ScheduleDto.builder()
+                .id(sch.id())
+                .title(sch.title())
+                .notes(sch.notes())
+                .availabilities(new HashSet<>(availabilityRepository.findByScheduleIdAndScheduleBusinessId(
+                        scheduleId, businessId, AvailabilityDto.class)))
+                .appointments(new HashSet<>(appointmentRepository.findByScheduleIdAndScheduleBusinessId(
+                        scheduleId, businessId, GeneralAppointmentDto.class))
+                        .stream()
+                        .map(app -> extracted2(businessId, app))
+                        .collect(toSet()))
+                .services(new HashSet<>(serviceRepository.findByBusinessIdAndSchedulesIdIn(
+                        businessId, List.of(scheduleId), ServiceDto.class)))
+                .createdAt(sch.createdAt())
+                .updatedAt(sch.updatedAt())
+                .build();
+    }
+
+    @Generated
+    private AppointmentDto extracted2(long businessId, GeneralAppointmentDto app) {
+        return AppointmentDto.builder()
+                .id(app.id())
+                .startAt(app.startAt())
+                .endAt(app.endAt())
+                .state(app.state())
+                .notes(app.notes())
+                .service(serviceRepository.findByBusinessIdAndAppointmentsIdIn(businessId,
+                        List.of(app.id()), ServiceDto.class).get())
+                .createdAt(app.createdAt())
+                .updatedAt(app.updatedAt())
+                .build();
+    }
+
+    @Generated
     public List<UserDto> findPossibleAttendantInBusinessSchedule(long businessId, long scheduleId, long serviceId,
             Instant from, Instant to) {
         BusinessEntity business = businessRepository.findById(businessId)

@@ -13,6 +13,10 @@ public interface ServiceRepository extends JpaRepository<ServiceEntity, Long> {
 
     <S> List<S> findAllByBusinessId(Long businessId, Class<S> type);
 
+    <S> List<S> findByBusinessIdAndSchedulesIdIn(Long businessId, List<Long> scheduleIds, Class<S> type); 
+
+    <S> Optional<S> findByBusinessIdAndAppointmentsIdIn(Long businessId, List<Long> appointmentIds, Class<S> type); 
+
     <S> Optional<S> findByIdAndBusinessId(Long id, Long businessId, Class<S> type);
 
     boolean existsByNameAndBusinessId(String name, Long businessId);

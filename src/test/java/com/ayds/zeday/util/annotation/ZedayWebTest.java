@@ -9,6 +9,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.autoconfigure.core.AutoConfigureCache;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -23,6 +24,7 @@ import com.ayds.zeday.util.paramresolver.PrimitivesParamsResolver;
 @ActiveProfiles("test")
 @ExtendWith(PrimitivesParamsResolver.class)
 @AutoConfigureMockMvc
+@AutoConfigureCache
 public @interface ZedayWebTest {
 
 }

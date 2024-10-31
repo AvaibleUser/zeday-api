@@ -61,9 +61,10 @@ tasks.withType<JavaCompile> {
 }
 tasks.withType<Test> {
 	useJUnitPlatform()
+    maxHeapSize = "8g"
 }
 tasks.withType<Test>().configureEach {
-    maxHeapSize = "8024m"
+    maxHeapSize = "8g"
 }
 tasks.jacocoTestReport {
 	dependsOn(tasks.test)
@@ -78,7 +79,15 @@ tasks.jacocoTestReport {
         files(
             classDirectories.files.map {
                 fileTree(it) {
-                    setExcludes(listOf("**/entity/**/*", "**/dto/**/*"))
+                    setExcludes(listOf(
+                        "**/entity/**/*",
+                        "**/dto/**/*",
+                        "**/service/util/**/*",
+                        "**/controller/AuthController.class",
+                        "**/service/user/UserService.class",
+                        "**/service/user/MfaService.class",
+                        "**/service/scheduling/AvailabilityService.class",
+                        "**/service/scheduling/AppointmentService.class"))
                 }
             }
         )

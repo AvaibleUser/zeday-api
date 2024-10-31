@@ -20,6 +20,8 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     Optional<MfaUserDto> findMfaUserDtoById(Long id);
 
+    <U> Optional<U> findByAssignedAppointmentsIdIn(List<Long> appointmentIds, Class<U> type);
+
     <U> Optional<U> findUserById(Long id, Class<U> type);
 
     <U> Optional<U> findByIdAndBusinessId(Long id, Long businessId, Class<U> type);

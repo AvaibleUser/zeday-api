@@ -86,7 +86,7 @@ public class BusinessControllerTest {
                         .header("CompanyId", businessId));
 
         actualResult.andExpect(status().isOk())
-                .andExpect(content().string(mapper.writeValueAsString(expectedBusiness)));
+                .andExpect(content().json(mapper.writeValueAsString(expectedBusiness)));
     }
 
     @Test
@@ -118,7 +118,7 @@ public class BusinessControllerTest {
                         .content(mapper.writeValueAsString(business)));
 
         actualResult.andExpect(status().isCreated())
-                .andExpect(content().string(mapper.writeValueAsString(expectedBusiness)));
+                .andExpect(content().json(mapper.writeValueAsString(expectedBusiness)));
     }
 
     @Test
@@ -157,7 +157,7 @@ public class BusinessControllerTest {
 
         verify(businessService).addImageToBusiness(businessId, logoPath);
         actualResult.andExpect(status().isOk())
-                .andExpect(content().string(mapper.writeValueAsString(expectedBusiness)));
+                .andExpect(content().json(mapper.writeValueAsString(expectedBusiness)));
     }
 
     @Test
@@ -180,7 +180,7 @@ public class BusinessControllerTest {
 
         verify(businessService).addImageToBusiness(businessId, logoPath);
         actualResult.andExpect(status().isOk())
-                .andExpect(content().string(mapper.writeValueAsString(expectedBusiness)));
+                .andExpect(content().json(mapper.writeValueAsString(expectedBusiness)));
     }
 
     @Test

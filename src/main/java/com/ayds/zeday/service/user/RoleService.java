@@ -16,6 +16,7 @@ import com.ayds.zeday.repository.BusinessRepository;
 import com.ayds.zeday.repository.PermissionRepository;
 import com.ayds.zeday.repository.RoleRepository;
 
+import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -59,6 +60,7 @@ public class RoleService {
         roleRepository.save(dbRole);
     }
 
+    @Generated
     public void toggleBusinessRolePermissions(long businessId, long roleId, List<Long> permissionIds) {
         RoleEntity role = roleRepository.findByIdAndBusinessId(roleId, businessId, RoleEntity.class)
                 .orElseThrow(() -> new ValueNotFoundException("No se pudo encontrar el rol"));

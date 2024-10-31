@@ -1,7 +1,7 @@
 package com.ayds.zeday.util.paramresolver;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
+import static org.mockito.Mockito.mock;
 
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
@@ -13,15 +13,14 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 
-import com.ayds.zeday.domain.dto.appointment.AppointmentDto;
-import com.ayds.zeday.domain.dto.availability.AvailabilityDto;
 import com.ayds.zeday.domain.dto.schedule.AddScheduleDto;
 import com.ayds.zeday.domain.dto.schedule.GeneralScheduleDto;
 import com.ayds.zeday.domain.dto.schedule.ScheduleDto;
 import com.ayds.zeday.domain.dto.schedule.UpdateScheduleDto;
-import com.ayds.zeday.domain.dto.service.ServiceDto;
+import com.ayds.zeday.domain.entity.BusinessEntity;
+import com.ayds.zeday.domain.entity.PermissionEntity;
+import com.ayds.zeday.domain.entity.RoleEntity;
 import com.ayds.zeday.domain.entity.ScheduleEntity;
-import com.ayds.zeday.domain.entity.ServiceEntity;
 
 public class ScheduleParamsResolver extends RandomParamsResolver {
 
@@ -84,9 +83,6 @@ public class ScheduleParamsResolver extends RandomParamsResolver {
                 .id(random.nextPositiveLong())
                 .title(random.nextString())
                 .notes(random.nextString())
-                .availabilities(random.nextMocks(AvailabilityDto.class, toSet()))
-                .appointments(random.nextMocks(AppointmentDto.class, toSet()))
-                .services(random.nextMocks(ServiceDto.class, toSet()))
                 .createdAt(random.nextInstant())
                 .updatedAt(random.nextInstant())
                 .build();
@@ -109,7 +105,9 @@ public class ScheduleParamsResolver extends RandomParamsResolver {
                 .id(random.nextPositiveLong())
                 .title(random.nextString())
                 .notes(random.nextString())
-                .services(random.nextMocks(ServiceEntity.class, toSet()))
+                .permission(mock(PermissionEntity.class))
+                .role(mock(RoleEntity.class))
+                .business(mock(BusinessEntity.class))
                 .createdAt(random.nextInstant())
                 .updatedAt(random.nextInstant())
                 .build();

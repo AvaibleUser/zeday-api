@@ -4,6 +4,7 @@ import static lombok.AccessLevel.PRIVATE;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -14,7 +15,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -79,6 +82,12 @@ public class ServiceEntity {
     @ManyToOne(optional = false)
     @JoinColumn(name = "business_id")
     private BusinessEntity business;
+
+    @ManyToMany(mappedBy = "services")
+    private Set<ScheduleEntity> schedules;
+
+    @OneToMany(mappedBy = "service")
+    private Set<AppointmentEntity> appointments;
 
     @CreationTimestamp
     @Column

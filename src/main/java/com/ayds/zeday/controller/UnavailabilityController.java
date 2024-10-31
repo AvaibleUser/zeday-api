@@ -35,14 +35,15 @@ public class UnavailabilityController {
         unavailabilityService.addScheduleUnavailability(businessId, scheduleId, unavailability);
     }
 
-    @PutMapping("/{availabilityId}")
+    @PutMapping("/{unavailabilityId}")
     @ResponseStatus(NO_CONTENT)
     public void updateUnavailability(@RequestHeader("CompanyId") @Positive long businessId,
-            @PathVariable @Positive long scheduleId, @RequestBody @Valid UpdateUnavailabilityDto unavailability) {
-        unavailabilityService.updateScheduleUnavailability(businessId, scheduleId, scheduleId, unavailability);
+            @PathVariable @Positive long scheduleId, @PathVariable @Positive long unavailabilityId,
+            @RequestBody @Valid UpdateUnavailabilityDto unavailability) {
+        unavailabilityService.updateScheduleUnavailability(businessId, scheduleId, unavailabilityId, unavailability);
     }
 
-    @DeleteMapping("/{availabilityId}")
+    @DeleteMapping("/{unavailabilityId}")
     @ResponseStatus(NO_CONTENT)
     public void deleteUnavailability(@RequestHeader("CompanyId") @Positive long businessId,
             @PathVariable @Positive long scheduleId, @PathVariable @Positive long unavailabilityId) {

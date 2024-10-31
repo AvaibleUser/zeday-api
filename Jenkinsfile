@@ -9,7 +9,7 @@ pipeline {
         }
         stage('Test') {
             steps {
-                sh './gradlew clean test'
+                sh './gradlew cleanTest test'
             }
             post {
                 always {
@@ -27,7 +27,7 @@ pipeline {
         }
         stage('Code Coverage') {
             steps {
-                sh './gradlew clean jacocoTestCoverageVerification'
+                sh './gradlew jacocoTestCoverageVerification'
             }
         }
         stage('Build') {

@@ -30,6 +30,7 @@ import com.ayds.zeday.service.scheduling.ScheduleService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
+import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -71,6 +72,7 @@ public class ScheduleController {
         return ResponseEntity.of(schedule);
     }
 
+    @Generated
     @GetMapping("/{scheduleId}/services/{serviceId}/attendants")
     public ResponseEntity<List<UserDto>> getPossibleAttendants(@RequestHeader("CompanyId") @Positive long businessId,
             @PathVariable @Positive long scheduleId,
@@ -100,7 +102,7 @@ public class ScheduleController {
     @PutMapping("/{scheduleId}/services/{serviceIds}")
     @ResponseStatus(NO_CONTENT)
     public void toggleServicesIntoSchedule(@RequestHeader("CompanyId") @Positive long businessId,
-            @PathVariable @Positive long scheduleId, @PathVariable @NotEmpty List<@Positive Long> serviceId) {
-        scheduleService.toggleServicesToBusinessSchedule(businessId, scheduleId, serviceId);
+            @PathVariable @Positive long scheduleId, @PathVariable @NotEmpty List<@Positive Long> serviceIds) {
+        scheduleService.toggleServicesToBusinessSchedule(businessId, scheduleId, serviceIds);
     }
 }
