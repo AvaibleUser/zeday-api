@@ -11,19 +11,6 @@ pipeline {
             steps {
                 sh './gradlew cleanTest test'
             }
-            post {
-                always {
-                    junit allowEmptyResults: true, testResults: '**/test-results/*.xml'
-                    recordCoverage(
-                            tools: [[parser: 'JACOCO', pattern: '**/jacoco/test/*.xml']],
-                            id: 'jacoco',
-                            name: 'JaCoCo Coverage',
-                            sourceCodeRetention: 'EVERY_BUILD',
-                            qualityGates: [
-                                    [threshold: 80.0, metric: 'LINE', baseline: 'PROJECT'],
-                                    [threshold: 80.0, metric: 'BRANCH', baseline: 'PROJECT']])
-                }
-            }
         }
         stage('Code Coverage') {
             steps {
@@ -32,7 +19,7 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh './gradlew clean package'
+                sh './gradlew clean build'
             }
         }
         stage('Deploy') {
