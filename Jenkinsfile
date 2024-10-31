@@ -28,7 +28,7 @@ pipeline {
             }
             steps {
                 script {
-                    def jarFiles = sh(script: 'ls /build/libs/*.jar', returnStdout: true).trim().split('\n')
+                    def jarFiles = sh(script: 'ls build/libs/*.jar', returnStdout: true).trim().split('\n')
 
                     def jarToDeploy = jarFiles.find { jar -> 
                         jar.endsWith('.jar') && !jar.endsWith('-plain.jar')
