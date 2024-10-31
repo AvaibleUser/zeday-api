@@ -35,7 +35,7 @@ pipeline {
                     }
 
                     if (jarToDeploy) {
-                        sh "java -jar ${jarToDeploy}"
+                        sh "java -jar ${jarToDeploy} %"
                     } else {
                         error("No suitable JAR file found for deployment.")
                     }
